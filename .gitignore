@@ -1,0 +1,6 @@
+.env
+backend/node_modules/
+backend/dist/
+frontend/node_modules/
+node_modules/
+/backend/src/drizzle/migrations

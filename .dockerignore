@@ -1,0 +1,11 @@
+.env.example
+backend/dist
+node_modules
+backend/Dockerfile
+backend/node_modules
+.git
+.gitignore
+README.md
+frontend/node_modules
+frontend/.vscode
+frontend/Dockerfile
