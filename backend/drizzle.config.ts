@@ -1,5 +1,5 @@
 import { defineConfig } from "drizzle-kit"
-
+ 
 export default defineConfig({
   schema: "./src/db/schema.ts", // path to your schema.ts file
   out: "./src/db/migrations", // path to your migrations
@@ -7,6 +7,11 @@ export default defineConfig({
   strict: true,
   verbose: true,
   dbCredentials: {
-    url: "postgresql://testuser:testpass@db:5432/testname?sslmode=disable",
-  },
+  host: "db",
+  port: 5432,
+  user: "worldsowner",
+  password: "worldspwd",
+  database: "worldstrackerdb",
+  ssl: false, // Explicitly disable SSL
+},
 })
