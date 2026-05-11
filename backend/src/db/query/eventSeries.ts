@@ -4,7 +4,11 @@ import { db } from "../index.js";
 import { eventSeries, type EventSeries } from "../schema.js";
 
 export async function addEventSeries(event: EventSeries) {
-    const [result] = await db.insert(eventSeries).values(event).returning();
+    const [result] = await db
+        .insert(eventSeries)
+        .values(event)
+        .returning();
+    
     return result;
 }
 

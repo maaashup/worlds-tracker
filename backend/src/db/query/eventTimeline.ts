@@ -1,9 +1,9 @@
 import { eq } from "drizzle-orm";
 
 import { db } from "../index.js";
-import { eventTimeline, type EventTimeline } from "../schema.js";
+import { eventTimeline, NewEventTimeline } from "../schema.js";
 
-export async function addEventTimeline(event: EventTimeline) {
+export async function addEventTimeline(event: NewEventTimeline) {
     const [result] = await db.insert(eventTimeline).values(event).returning();
     return result;
 }

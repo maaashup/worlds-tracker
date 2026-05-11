@@ -5,6 +5,7 @@ import {
   uuid,
   boolean,
   integer,
+  date,
 } from "drizzle-orm/pg-core"
 
 const createdAt = timestamp("created_at", { withTimezone: true })
@@ -19,20 +20,20 @@ const updatedAt = timestamp("updated_at", { withTimezone: true })
 export const eventTimeline = pgTable("eventTimeline", {
   id: uuid("id").primaryKey().defaultRandom(),
   eventYear: text("event_year").notNull(),
-  startDate: timestamp("start_date", { withTimezone: true }).notNull(),
-  endDate: timestamp("end_date", { withTimezone: true }).notNull(),
+  startDate: date("start_date").notNull(),
+  endDate: date("end_date").notNull(),
   createdAt,
   updatedAt,
 });
 
-export type EventTimeline = typeof eventTimeline.$inferSelect
+export type NewEventTimeline = typeof eventTimeline.$inferInsert
 
 // eventSeries Table: Represents a series of events within a timeline, such as individual tournaments or competitions. It includes fields for the event type, region, date, and a foreign key reference to the event timeline it belongs to.
 export const eventSeries = pgTable("eventSeries", {
   id: uuid("id").primaryKey().defaultRandom(),
   type: text("event_type").notNull(),
   region: text("event_region").notNull(),
-  date: timestamp("event_date", { withTimezone: true }).notNull(),
+  date: date("event_date").notNull(),
   eventTimelineId: uuid("event_timeline_id")
     .notNull()
     .references(() => eventTimeline.id, { onDelete: "cascade" }),
@@ -40,7 +41,7 @@ export const eventSeries = pgTable("eventSeries", {
   updatedAt,
 });
 
-export type EventSeries = typeof eventSeries.$inferSelect
+export type EventSeries = typeof eventSeries.$inferInsert
 
 
 // format Table: Represents the format of a tournament or competition, such as Standard, Modern, or Commander. It includes fields for the format name, active status, and timestamps for creation and updates.
@@ -52,7 +53,7 @@ export const format = pgTable("format", {
   updatedAt,
 });
 
-export type Format = typeof format.$inferSelect
+export type Format = typeof format.$inferInsert
 
 // playerResults Table: Represents the results of players in a tournament or competition. It includes fields for the player's name, rank, sponsorship status, form completion status, invitation status, and foreign key references to the format and event series they participated in.
 export const playerResults = pgTable("playerResults", {
@@ -73,5 +74,5 @@ export const playerResults = pgTable("playerResults", {
   updatedAt,
 });
 
-export type PlayerResults = typeof playerResults.$inferSelect
+export type PlayerResults = typeof playerResults.$inferInsert
 
