@@ -31,6 +31,7 @@ export type NewEventTimeline = typeof eventTimeline.$inferInsert
 // eventSeries Table: Represents a series of events within a timeline, such as individual tournaments or competitions. It includes fields for the event type, region, date, and a foreign key reference to the event timeline it belongs to.
 export const eventSeries = pgTable("eventSeries", {
   id: uuid("id").primaryKey().defaultRandom(),
+  name: text("name").notNull(),
   eventTypeId: uuid("event_type_id")
     .notNull()
     .references(() => eventType.id, { onDelete: "cascade" }),

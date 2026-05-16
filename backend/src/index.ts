@@ -9,6 +9,8 @@ import { migrate } from "drizzle-orm/postgres-js/migrator";
 import { drizzle } from "drizzle-orm/postgres-js";
 import { config } from "./config.js";
 import { createEventTimeline, getAllEventTimelines, getEventTimelineByID, getEventTimelineByEventYear } from "./endpoints/eventTimeline.js";
+import { createEventType, getAllEventTypes, getEventTypeByCode } from "./endpoints/eventType.js";
+import { createEventSeries } from "./endpoints/eventSeries.js";
 
 await runMigrations();
 
@@ -26,12 +28,22 @@ app.get("/api/health", (req: Request, res: Response) => {
 });
 
 //Main Backend Endpoints:
+
+// Event Timeline Endpoints:
 app.post("/api/event-timeline/create", createEventTimeline);
 app.get("/api/event-timeline", getAllEventTimelines);
 app.get("/api/event-timeline/id/:id", getEventTimelineByID);
 app.get("/api/event-timeline/event-year/:eventYear", getEventTimelineByEventYear);
 
+//Event Series Endpoints:
+app.post("/api/event-series/create", createEventSeries);
 
+
+
+//Helper Endpoints:
+app.post("/api/event-type/create", createEventType);
+app.get("/api/event-type", getAllEventTypes);
+app.get("/api/event-type/code/:code", getEventTypeByCode);
 
 
 
