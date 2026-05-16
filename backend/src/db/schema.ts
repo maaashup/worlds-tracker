@@ -31,7 +31,9 @@ export type NewEventTimeline = typeof eventTimeline.$inferInsert
 // eventSeries Table: Represents a series of events within a timeline, such as individual tournaments or competitions. It includes fields for the event type, region, date, and a foreign key reference to the event timeline it belongs to.
 export const eventSeries = pgTable("eventSeries", {
   id: uuid("id").primaryKey().defaultRandom(),
-  type: text("event_type").notNull(),
+  eventTypeId: uuid("event_type_id")
+    .notNull()
+    .references(() => eventType.id, { onDelete: "cascade" }),
   region: text("event_region").notNull(),
   date: date("event_date").notNull(),
   eventTimelineId: uuid("event_timeline_id")
@@ -66,7 +68,7 @@ export const playerResults = pgTable("playerResults", {
   rank: integer("rank").notNull(),
   isSponsored: boolean("is_sponsored").notNull(),
   isFormComplete: boolean("is_form_complete").notNull(),
-  invTakenHere: boolean("inv_taken_here").notNull(),  
+  invTakenHere: boolean("inv_taken_here").notNull(),
   eventSeriesId: uuid("event_series_id")
     .notNull()
     .references(() => eventSeries.id, { onDelete: "cascade" }),
@@ -76,3 +78,15 @@ export const playerResults = pgTable("playerResults", {
 
 export type PlayerResults = typeof playerResults.$inferInsert
 
+// eventType Table: Represents the type of event.
+
+export const eventType = pgTable("eventType", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  code: text("code").notNull().unique(),
+  fullName: text("full_name").notNull(),
+  isActive: boolean("is_active").notNull(),
+  createdAt,
+  updatedAt,
+});
+
+export type EventType = typeof eventType.$inferInsert

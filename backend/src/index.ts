@@ -1,14 +1,14 @@
 import express from "express";
 import { Request, Response } from "express";
 
-import { middlewareLogging } from "./middleware/middlewareLogging.js";
+import { middlewareLogging, middlewareErrorHandler } from "./middleware/middlewareLogging.js";
 import { respondWithJSON } from "./helperfunctions/respondWithJSON.js";
 
 import postgres from "postgres";
 import { migrate } from "drizzle-orm/postgres-js/migrator";
 import { drizzle } from "drizzle-orm/postgres-js";
 import { config } from "./config.js";
-import { createEventTimeline } from "./endpoints/eventTimeline.js";
+import { createEventTimeline, getAllEventTimelines, getEventTimelineByID, getEventTimelineByEventYear } from "./endpoints/eventTimeline.js";
 
 await runMigrations();
 
@@ -25,7 +25,17 @@ app.get("/api/health", (req: Request, res: Response) => {
   respondWithJSON(res, 200, { status: "OK" });
 });
 
+//Main Backend Endpoints:
 app.post("/api/event-timeline/create", createEventTimeline);
+app.get("/api/event-timeline", getAllEventTimelines);
+app.get("/api/event-timeline/id/:id", getEventTimelineByID);
+app.get("/api/event-timeline/event-year/:eventYear", getEventTimelineByEventYear);
+
+
+
+
+
+app.use(middlewareErrorHandler);
 
 app.listen(PORT, () => {
   console.log(`Server is running at ${API_URL}:${PORT}`);
