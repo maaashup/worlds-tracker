@@ -21,3 +21,8 @@ export async function getDBEventSeriesById(id: string) {
     const [result] = await db.select().from(eventSeries).where(eq(eventSeries.id, id));
     return result;
 }
+
+export async function getDBEventSeriesByName(name: string) {
+    const [result] = await db.select().from(eventSeries).where(eq(eventSeries.name, name));
+    return result;
+}

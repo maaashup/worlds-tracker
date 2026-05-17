@@ -11,6 +11,8 @@ import { config } from "./config.js";
 import { createEventTimeline, getAllEventTimelines, getEventTimelineByID, getEventTimelineByEventYear } from "./endpoints/eventTimeline.js";
 import { createEventType, getAllEventTypes, getEventTypeByCode } from "./endpoints/eventType.js";
 import { createEventSeries } from "./endpoints/eventSeries.js";
+import { createFormat, getFormatById, getFormats } from "./endpoints/format.js";
+import { createPlayerResult, getPlayerResult } from "./endpoints/playerResult.js";
 
 await runMigrations();
 
@@ -38,6 +40,9 @@ app.get("/api/event-timeline/event-year/:eventYear", getEventTimelineByEventYear
 //Event Series Endpoints:
 app.post("/api/event-series/create", createEventSeries);
 
+//Player Results Endpoints:
+app.post("/api/player-result/create", createPlayerResult);
+app.get("/api/player-result", getPlayerResult);
 
 
 //Helper Endpoints:
@@ -45,6 +50,9 @@ app.post("/api/event-type/create", createEventType);
 app.get("/api/event-type", getAllEventTypes);
 app.get("/api/event-type/code/:code", getEventTypeByCode);
 
+app.post("/api/format/create", createFormat);
+app.get("/api/format", getFormats);
+app.get("/api/format/id/:id", getFormatById);
 
 
 app.use(middlewareErrorHandler);
