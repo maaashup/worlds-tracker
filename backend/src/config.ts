@@ -5,8 +5,12 @@ const migrationConfig: MigrationConfig = {
 };
 
 const dbConfig: DBConfig = {
-    dbURL: envOrThrow("DB_URL") + "?sslmode=disable",
-    migrationConfig: migrationConfig
+  host: envOrThrow("API_HOST"),
+  port: Number(envOrThrow("DB_PORT")),
+  user: envOrThrow("DB_USER"),
+  password: envOrThrow("DB_PASSWORD"),
+  database: envOrThrow("DB_NAME"),
+  migrationConfig: migrationConfig
 }
 
 //This is the config loader that will be used throughout the API and can be expanded upon when needed.
@@ -17,15 +21,19 @@ export const config = {
 
 //Data types
 type DBConfig = {
-    dbURL: string,
+    host: string;
+    port: number;
+    user: string;
+    password: string;
+    database: string;
     migrationConfig: MigrationConfig
 }
 
 //Helper Functions
-function envOrThrow(key: string) {
-    if(!process.env[key]) {
+function envOrThrow(key: string): string {
+    const value = process.env[key];
+    if (!value) {
         throw new Error(`${key} does not resolve to anything`);
     }
-
-    return process.env[key];
+    return value;
 }

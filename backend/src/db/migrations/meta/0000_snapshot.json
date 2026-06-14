@@ -1,135 +1,11 @@
 {
-  "id": "731e3aae-da30-46a4-8b72-751387afefbb",
+  "id": "716bc574-5d54-44e4-9464-907050e0683d",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
-    "public.eventSeries": {
-      "name": "eventSeries",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "uuid",
-          "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
-        },
-        "event_type": {
-          "name": "event_type",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "event_region": {
-          "name": "event_region",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "event_date": {
-          "name": "event_date",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "event_timeline_id": {
-          "name": "event_timeline_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "eventSeries_event_timeline_id_eventTimeline_id_fk": {
-          "name": "eventSeries_event_timeline_id_eventTimeline_id_fk",
-          "tableFrom": "eventSeries",
-          "tableTo": "eventTimeline",
-          "columnsFrom": [
-            "event_timeline_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.eventTimeline": {
-      "name": "eventTimeline",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "uuid",
-          "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
-        },
-        "event_year": {
-          "name": "event_year",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "start_date": {
-          "name": "start_date",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "end_date": {
-          "name": "end_date",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {},
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.format": {
-      "name": "format",
+    "public.products": {
+      "name": "products",
       "schema": "",
       "columns": {
         "id": {
@@ -145,11 +21,17 @@
           "primaryKey": false,
           "notNull": true
         },
-        "active": {
-          "name": "active",
-          "type": "boolean",
+        "url": {
+          "name": "url",
+          "type": "text",
           "primaryKey": false,
           "notNull": true
+        },
+        "description": {
+          "name": "description",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
         },
         "created_at": {
           "name": "created_at",
@@ -168,115 +50,6 @@
       },
       "indexes": {},
       "foreignKeys": {},
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.playerResults": {
-      "name": "playerResults",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "uuid",
-          "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
-        },
-        "bushi_navi_id": {
-          "name": "bushi_navi_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "player_name": {
-          "name": "player_name",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "format_id": {
-          "name": "format_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "rank": {
-          "name": "rank",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "is_sponsored": {
-          "name": "is_sponsored",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "is_form_complete": {
-          "name": "is_form_complete",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "inv_taken_here": {
-          "name": "inv_taken_here",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "event_series_id": {
-          "name": "event_series_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "playerResults_format_id_format_id_fk": {
-          "name": "playerResults_format_id_format_id_fk",
-          "tableFrom": "playerResults",
-          "tableTo": "format",
-          "columnsFrom": [
-            "format_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "playerResults_event_series_id_eventSeries_id_fk": {
-          "name": "playerResults_event_series_id_eventSeries_id_fk",
-          "tableFrom": "playerResults",
-          "tableTo": "eventSeries",
-          "columnsFrom": [
-            "event_series_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
       "policies": {},

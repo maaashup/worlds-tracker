@@ -5,36 +5,8 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1778410632253,
-      "tag": "0000_fantastic_mandroid",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1778520283983,
-      "tag": "0001_first_ricochet",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1778957470553,
-      "tag": "0002_optimal_mentor",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "7",
-      "when": 1778957769217,
-      "tag": "0003_first_mister_fear",
-      "breakpoints": true
-    },
-    {
-      "idx": 4,
-      "version": "7",
-      "when": 1778961564580,
-      "tag": "0004_pale_mindworm",
+      "when": 1781306389407,
+      "tag": "0000_flimsy_domino",
       "breakpoints": true
     }
   ]

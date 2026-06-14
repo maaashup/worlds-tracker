@@ -5,24 +5,35 @@ This template consists of a Frontend, Backend and Database creating a mono-repos
 ## Tech Stack
 - Frontend: VueJS
 - Backend: NodeJS
-- DB: Postgres 18
+- DB: Postgres 16
 
-## Accessing the frontend
-After running `docker compose up -d --build`, the frontend is exposed on port `8080`.
+## Template structure
+This uses a mono-repo style to separate out the different services
+- `backend/` Express API
+- `frontend/` Vue3 Frontend
 
-- Use `http://localhost:8080/` from the host machine.
-- Use `http://<host-ip>:8080/` from other devices on the same network.
-
-Find the host IP with:
-
+## Setting up
+1. Create a .env file in the root directory using the .env.example file
 ```bash
-hostname -I | awk '{print $1}'
+cp .env.example .env
+
+```
+2. Install all packages
+```bash
+npm install
 ```
 
-Then use that IP in the URL, for example:
+## Working within the dev container (VSCode)
+In the above terminal, type and select `>Dev Containers: Reopen in Container`
 
+Generate and Migrate any schemas into your DB
 ```bash
-http://192.168.1.42:8080/
+npm run db:generate --workspace=./backend
+npm run db:migrate --workspace=./backend
 ```
 
-Note: the Vite server log may show a container-internal address like `http://XX.XX.XX.XX:8080/`, but that address is only reachable from inside the Docker network. For external access, use the host machine IP.
+Then run the following commands to run the services separately to take advantage of hot-reloading:
+```bash
+npm run api:dev --workspace=./backend
+npm run dev:frontend --workspace=./frontend
+```

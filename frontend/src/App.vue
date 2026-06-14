@@ -1,12 +1,11 @@
-<template>
-  <body>
-    <nav>
-      chicken
-    </nav>
-    <main>
+<script setup lang="ts">
 
-    </main>
-  </body>
+</script>
+
+<template>
+  <RouterView />
 </template>
 
-<style></style>
+<style scoped lang="scss">
+
+</style>

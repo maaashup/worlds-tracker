@@ -8,13 +8,12 @@ import postgres from "postgres";
 import { migrate } from "drizzle-orm/postgres-js/migrator";
 import { drizzle } from "drizzle-orm/postgres-js";
 import { config } from "./config.js";
+
 import { createEventTimeline, getAllEventTimelines, getEventTimelineByID, getEventTimelineByEventYear } from "./endpoints/eventTimeline.js";
 import { createEventType, getAllEventTypes, getEventTypeByCode } from "./endpoints/eventType.js";
 import { createEventSeries } from "./endpoints/eventSeries.js";
 import { createFormat, getFormatById, getFormats } from "./endpoints/format.js";
 import { createPlayerResult, getPlayerResult } from "./endpoints/playerResult.js";
-
-await runMigrations();
 
 const env = process.env;
 const PORT = env.API_PORT || 3000;
@@ -57,13 +56,27 @@ app.get("/api/format/id/:id", getFormatById);
 
 app.use(middlewareErrorHandler);
 
-app.listen(PORT, () => {
-  console.log(`Server is running at ${API_URL}:${PORT}`);
-});
+
+startServer();
+
+async function startServer() {
+  await runMigrations();
+
+  app.listen(PORT, () => {
+    console.log(`Server is running at ${API_URL}:${PORT}`);
+  });
+}
 
 async function runMigrations() {
   try {
-    const migrationClient = postgres(config.db.dbURL, { max: 1 });
+    const migrationClient = postgres({
+      host: config.db.host,
+      port: config.db.port,
+      username: config.db.user,
+      password: config.db.password,
+      database: config.db.database,
+      max: 1,
+    });
     await migrate(drizzle(migrationClient), config.db.migrationConfig);
     console.log("✅ Migrations completed!");
   } catch (error) {
