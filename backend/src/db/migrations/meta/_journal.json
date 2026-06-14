@@ -8,6 +8,20 @@
       "when": 1781306389407,
       "tag": "0000_flimsy_domino",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1781463781012,
+      "tag": "0001_powerful_tombstone",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1781474560881,
+      "tag": "0002_sudden_random",
+      "breakpoints": true
     }
   ]
 }

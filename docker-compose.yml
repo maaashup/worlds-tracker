@@ -1,6 +1,6 @@
 services:
   devcontainer:
-    container_name: devcontainer
+    container_name: ${PROJECT_FOLDER_NAME}-devcontainer
     build:
       context: .devcontainer
       dockerfile: Dockerfile
@@ -29,8 +29,7 @@ services:
     networks:
       - monorepo-network
     healthcheck:
-      # FIXED: Uses standard internal execution matrix to avoid hanging
-      test: ["CMD", "pg_isready", "-U", "postgres", "-d", "postgres"]
+      test: ["CMD", "pg_isready", "-U", "${DB_USER}", "-d", "${DB_NAME}"]
       interval: 5s
       timeout: 5s
       retries: 5

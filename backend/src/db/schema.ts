@@ -70,6 +70,9 @@ export const playerResults = pgTable("playerResults", {
   isSponsored: boolean("is_sponsored").notNull(),
   isFormComplete: boolean("is_form_complete").notNull(),
   invTakenHere: boolean("inv_taken_here").notNull(),
+  eventTypeId: uuid("event_type_id")
+    .notNull()
+    .references(() => eventType.id, { onDelete: "cascade" }),
   eventSeriesId: uuid("event_series_id")
     .notNull()
     .references(() => eventSeries.id, { onDelete: "cascade" }),

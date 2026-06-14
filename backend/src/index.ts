@@ -38,6 +38,7 @@ app.get("/api/event-timeline/event-year/:eventYear", getEventTimelineByEventYear
 
 //Event Series Endpoints:
 app.post("/api/event-series/create", createEventSeries);
+app.get("/api/event-series", getAllEventTimelines);
 
 //Player Results Endpoints:
 app.post("/api/player-result/create", createPlayerResult);
