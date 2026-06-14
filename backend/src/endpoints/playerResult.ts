@@ -1,13 +1,11 @@
 import { Request, Response } from "express";
 
 import { respondWithJSON } from "../helperfunctions/respondWithJSON.js";
-import { config } from "../config.js";
 import { BadRequestError, NotFoundError } from "../middleware/middlewareLogging.js";
 
-import { addDBPlayerResults, getDBPlayerResults, getDBPlayerResultsById } from "../db/query/playerResult.js";
+import { addDBPlayerResults, getDBPlayerResults, getDBPlayerResultsById, getDBPlayerResultsByNaviId } from "../db/query/playerResult.js";
 import { getDBFormatById } from "../db/query/format.js";
-import { getDBEventSeriesById, getDBEventSeriesByName } from "../db/query/eventSeries.js";
-import { getEventTypeByCode } from "./eventType.js";
+import { getDBEventSeriesByName } from "../db/query/eventSeries.js";
 import { getDBEventTypeByCode } from "../db/query/eventType.js";
 
 export async function createPlayerResult(req: Request, res: Response): Promise<void> {
@@ -56,7 +54,30 @@ export async function createPlayerResult(req: Request, res: Response): Promise<v
 
 }
 
-export async function getPlayerResult(req: Request, res: Response): Promise<void> {
+export async function getPlayerResults(req: Request, res: Response): Promise<void> {
     const playerResults = await getDBPlayerResults();
+    if (!playerResults) {
+        throw new BadRequestError("Player Results failed to load");
+    }
+
+    respondWithJSON(res, 200, playerResults);
+}
+
+export async function getPlayerResultsByNaviId(req: Request, res: Response): Promise<void> {
+    const naviId = req.params.naviId as string;
+    const playerResults = await getDBPlayerResultsByNaviId(naviId);
+    if (!playerResults) {
+        throw new NotFoundError("Player result not found");
+    }
+
+    respondWithJSON(res, 200, playerResults);
+}
+
+export async function getPlayerResultsById(req: Request, res: Response): Promise<void> {
+    const id = req.params.id as string;
+    const playerResults = await getDBPlayerResultsById(id);
+    if (!playerResults) {
+        throw new NotFoundError("Player result not found");
+    }
     respondWithJSON(res, 200, playerResults);
 }

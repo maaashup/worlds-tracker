@@ -13,7 +13,7 @@ import { createEventTimeline, getAllEventTimelines, getEventTimelineByID, getEve
 import { createEventType, getAllEventTypes, getEventTypeByCode } from "./endpoints/eventType.js";
 import { createEventSeries } from "./endpoints/eventSeries.js";
 import { createFormat, getFormatById, getFormats } from "./endpoints/format.js";
-import { createPlayerResult, getPlayerResult } from "./endpoints/playerResult.js";
+import { createPlayerResult, getPlayerResults, getPlayerResultsById, getPlayerResultsByNaviId } from "./endpoints/playerResult.js";
 
 const env = process.env;
 const PORT = env.API_PORT || 3000;
@@ -42,7 +42,9 @@ app.get("/api/event-series", getAllEventTimelines);
 
 //Player Results Endpoints:
 app.post("/api/player-result/create", createPlayerResult);
-app.get("/api/player-result", getPlayerResult);
+app.get("/api/player-result/all", getPlayerResults);
+app.get("/api/player-result/id/:id", getPlayerResultsById);
+app.get("/api/player-result/navi-id/:naviId", getPlayerResultsByNaviId);
 
 
 //Helper Endpoints:

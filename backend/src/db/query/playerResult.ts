@@ -17,3 +17,8 @@ export async function getDBPlayerResultsById(id: string) {
     const [result] = await db.select().from(playerResults).where(eq(playerResults.id, id));
     return result;
 }
+
+export async function getDBPlayerResultsByNaviId(naviId: string) {
+    const [result] = await db.select().from(playerResults).where(eq(playerResults.bushiNaviId, naviId));
+    return result;
+}
