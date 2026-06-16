@@ -10,9 +10,9 @@ import { getDBEventTypeByCode } from "../db/query/eventType.js";
 
 export async function createPlayerResult(req: Request, res: Response): Promise<void> {
     
-    const { bushiNaviId, playerName, formatId, rank, isSponsored, isFormComplete, invTakenHere, eventSeries, eventType, eventTimelineId } = req.body;
+    const { bushiNaviId, playerName, formatId, rank, isSponsored, isFormComplete, invTakenHere, eventSeries, eventType, eventTimelineId, region } = req.body;
 
-    if (!bushiNaviId || !playerName || !formatId || !rank || !isSponsored || !isFormComplete || !invTakenHere || !eventSeries || !eventType || !eventTimelineId) {
+    if (!bushiNaviId || !playerName || !formatId || !rank || !isSponsored || !isFormComplete || !invTakenHere || !eventSeries || !eventType || !eventTimelineId || !region) {
         throw new BadRequestError("Missing required fields");
     }
 
@@ -34,6 +34,8 @@ export async function createPlayerResult(req: Request, res: Response): Promise<v
         throw new NotFoundError("Event series not found");
     }
 
+    // const checkRegion;
+
     //If all checks pass, add player results to the database
     const addPlayerResults = await addDBPlayerResults({
         bushiNaviId: bushiNaviId,
@@ -44,7 +46,8 @@ export async function createPlayerResult(req: Request, res: Response): Promise<v
         isFormComplete: isFormComplete,
         invTakenHere: invTakenHere,
         eventTypeId: checkEventType.id,
-        eventSeriesId: checkEventSeries.id
+        eventSeriesId: checkEventSeries.id,
+        regionId: 1
     });
     if (!addPlayerResults) {
         throw new NotFoundError("Failed to create player results");

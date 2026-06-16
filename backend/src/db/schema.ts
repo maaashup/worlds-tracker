@@ -6,6 +6,7 @@ import {
   boolean,
   integer,
   date,
+  serial,
 } from "drizzle-orm/pg-core"
 
 const createdAt = timestamp("created_at", { withTimezone: true })
@@ -76,6 +77,9 @@ export const playerResults = pgTable("playerResults", {
   eventSeriesId: uuid("event_series_id")
     .notNull()
     .references(() => eventSeries.id, { onDelete: "cascade" }),
+  regionId: integer("region_id")
+    .notNull()
+    .references(() => regions.id, { onDelete: "cascade" }),
   createdAt,
   updatedAt,
 });
@@ -94,3 +98,17 @@ export const eventType = pgTable("eventType", {
 });
 
 export type EventType = typeof eventType.$inferInsert
+
+//region Table: Lists all the legal regions
+
+export const regions = pgTable("regions", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  code: text("code").notNull(),
+  fullRegionName: text("full_region_name").notNull(),
+  isActive: boolean("is_active").notNull(),
+  createdAt,
+  updatedAt,
+});
+
+export type Regions = typeof regions.$inferInsert

@@ -17,7 +17,7 @@
                 <span class="material-symbols-outlined">home</span>
                 <span class="text">Dashboard</span>
             </router-link>
-            <router-link class="button" to="/about">
+            <router-link class="button" to="/events">
                 <span class="material-symbols-outlined">event</span>
                 <span class="text">Events</span>
             </router-link>
