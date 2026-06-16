@@ -19,7 +19,7 @@
             </router-link>
             <router-link class="button" to="/about">
                 <span class="material-symbols-outlined">event</span>
-                <span class="text">Events & Results</span>
+                <span class="text">Events</span>
             </router-link>
             <router-link class="button" to="/info">
                 <span class="material-symbols-outlined">info</span>
