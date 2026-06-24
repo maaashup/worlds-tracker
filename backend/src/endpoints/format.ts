@@ -4,13 +4,13 @@ import { respondWithJSON } from "../helperfunctions/respondWithJSON.js";
 import { config } from "../config.js";
 import { BadRequestError, NotFoundError } from "../middleware/middlewareLogging.js";
 
-import { addDBFormat, getDBFormats, getDBFormatById, getDBFormatByName } from "../db/query/format.js";
+import { addDBFormat, getDBFormats, getDBFormatById, getDBFormatByName, getDBFormatByCode } from "../db/query/format.js";
 
 export async function createFormat(req: Request, res: Response): Promise<void> {
 
-    const { name, isActive } = req.body; 
+    const { name, code, isActive } = req.body; 
 
-    if (!name || isActive === undefined) {
+    if (!name || !code || isActive === undefined) {
         throw new BadRequestError("Missing required fields");
     }
     const checkFormat = await getDBFormatByName(name);
@@ -18,7 +18,12 @@ export async function createFormat(req: Request, res: Response): Promise<void> {
         throw new BadRequestError("Format with this name already exists");
     }
 
-    const addFormat = await addDBFormat({ name, isActive });
+    const checkCode = await getDBFormatByCode(code);
+    if (checkCode) {
+        throw new BadRequestError("Format with this code already exists");
+    }
+
+    const addFormat = await addDBFormat({ name, code, isActive });
     if (!addFormat) {
         throw new NotFoundError("Failed to create format");
     }
@@ -35,6 +40,16 @@ export async function getFormats(req: Request, res: Response): Promise<void> {
 export async function getFormatById(req: Request, res: Response): Promise<void> {
     const id  = req.params.id as string;
     const format = await getDBFormatById(id);
+    if (!format) {
+        throw new NotFoundError("Format not found");
+    }
+    
+    respondWithJSON(res, 200, format);
+}
+
+export async function getFormatByCode(req: Request, res: Response): Promise<void> {
+    const code  = req.params.code as string;
+    const format = await getDBFormatByCode(code);
     if (!format) {
         throw new NotFoundError("Format not found");
     }

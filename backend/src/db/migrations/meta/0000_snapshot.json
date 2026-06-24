@@ -1,5 +1,5 @@
 {
-  "id": "418dd5e5-3fe7-4e2d-91cd-7e1fa2c90416",
+  "id": "7556025c-45f8-437e-ac94-349f710a80f5",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -237,8 +237,14 @@
           "primaryKey": false,
           "notNull": true
         },
-        "active": {
-          "name": "active",
+        "code": {
+          "name": "code",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "is_active": {
+          "name": "is_active",
           "type": "boolean",
           "primaryKey": false,
           "notNull": true
@@ -261,7 +267,15 @@
       "indexes": {},
       "foreignKeys": {},
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
+      "uniqueConstraints": {
+        "format_code_unique": {
+          "name": "format_code_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "code"
+          ]
+        }
+      },
       "policies": {},
       "checkConstraints": {},
       "isRLSEnabled": false
@@ -289,9 +303,9 @@
           "primaryKey": false,
           "notNull": true
         },
-        "format_id": {
-          "name": "format_id",
-          "type": "uuid",
+        "format_code": {
+          "name": "format_code",
+          "type": "text",
           "primaryKey": false,
           "notNull": true
         },
@@ -354,15 +368,15 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "playerResults_format_id_format_id_fk": {
-          "name": "playerResults_format_id_format_id_fk",
+        "playerResults_format_code_format_code_fk": {
+          "name": "playerResults_format_code_format_code_fk",
           "tableFrom": "playerResults",
           "tableTo": "format",
           "columnsFrom": [
-            "format_id"
+            "format_code"
           ],
           "columnsTo": [
-            "id"
+            "code"
           ],
           "onDelete": "cascade",
           "onUpdate": "no action"
@@ -421,12 +435,6 @@
           "name": "id",
           "type": "serial",
           "primaryKey": true,
-          "notNull": true
-        },
-        "name": {
-          "name": "name",
-          "type": "text",
-          "primaryKey": false,
           "notNull": true
         },
         "code": {

@@ -54,6 +54,7 @@ export type EventSeries = typeof eventSeries.$inferInsert
 export const format = pgTable("format", {
   id: uuid("id").primaryKey().defaultRandom(),
   name: text("name").notNull(),
+  code: text("code").notNull().unique(),
   isActive: boolean("is_active").notNull(),
   createdAt,
   updatedAt,
@@ -66,9 +67,9 @@ export const playerResults = pgTable("playerResults", {
   id: uuid("id").primaryKey().defaultRandom(),
   bushiNaviId: text("bushi_navi_id").notNull(),
   playerName: text("player_name").notNull(),
-  formatId: uuid("format_id")
+  formatCode: text("format_code")
     .notNull()
-    .references(() => format.id, { onDelete: "cascade" }),
+    .references(() => format.code, { onDelete: "cascade" }),
   rank: integer("rank").notNull(),
   isSponsored: boolean("is_sponsored").notNull(),
   isFormComplete: boolean("is_form_complete").notNull(),

@@ -11,8 +11,8 @@ import { config } from "./config.js";
 
 import { createEventTimeline, getAllEventTimelines, getEventTimelineByID, getEventTimelineByEventYear } from "./endpoints/eventTimeline.js";
 import { createEventType, getAllEventTypes, getEventTypeByCode } from "./endpoints/eventType.js";
-import { createEventSeries } from "./endpoints/eventSeries.js";
-import { createFormat, getFormatById, getFormats } from "./endpoints/format.js";
+import { createEventSeries, getAllEventSeries } from "./endpoints/eventSeries.js";
+import { createFormat, getFormatByCode, getFormatById, getFormats } from "./endpoints/format.js";
 import { createPlayerResult, getPlayerResults, getPlayerResultsById, getPlayerResultsByNaviId } from "./endpoints/playerResult.js";
 import { createRegion, getRegionByCode, getRegions } from "./endpoints/region.js";
 
@@ -39,7 +39,7 @@ app.get("/api/event-timeline/event-year/:eventYear", getEventTimelineByEventYear
 
 //Event Series Endpoints:
 app.post("/api/event-series/create", createEventSeries);
-app.get("/api/event-series", getAllEventTimelines);
+app.get("/api/event-series", getAllEventSeries);
 
 //Player Results Endpoints:
 app.post("/api/player-result/create", createPlayerResult);
@@ -56,6 +56,7 @@ app.get("/api/event-type/code/:code", getEventTypeByCode);
 app.post("/api/format/create", createFormat);
 app.get("/api/format", getFormats);
 app.get("/api/format/id/:id", getFormatById);
+app.get("/api/format/code/:code", getFormatByCode);
 
 app.post("/api/regions/create", createRegion);
 app.get("/api/regions", getRegions);

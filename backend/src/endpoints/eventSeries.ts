@@ -44,4 +44,9 @@ export async function createEventSeries(req: Request, res: Response): Promise<vo
     respondWithJSON(res, 201, newEventSeries);
 }
 
-export async function getAllEventSeries() {}
+export async function getAllEventSeries(req: Request, res: Response): Promise<void> {
+    const allEventSeries =  await getDBEventSeries();
+
+    return respondWithJSON(res, 200, allEventSeries);
+
+}

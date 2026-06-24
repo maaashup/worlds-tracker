@@ -22,3 +22,8 @@ export async function getDBFormatByName(name: string) {
     const [result] = await db.select().from(format).where(eq(format.name, name));
     return result;
 }
+
+export async function getDBFormatByCode(code: string) {
+    const [result] = await db.select().from(format).where(eq(format.code, code));
+    return result;
+}

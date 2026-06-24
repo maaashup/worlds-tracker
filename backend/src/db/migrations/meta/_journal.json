@@ -5,22 +5,8 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1782335494840,
-      "tag": "0000_vengeful_crusher_hogan",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1782336471957,
-      "tag": "0001_famous_silver_samurai",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1782338068908,
-      "tag": "0002_black_zzzax",
+      "when": 1782339077631,
+      "tag": "0000_material_bulldozer",
       "breakpoints": true
     }
   ]

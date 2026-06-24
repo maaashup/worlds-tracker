@@ -4,21 +4,27 @@ import { respondWithJSON } from "../helperfunctions/respondWithJSON.js";
 import { BadRequestError, NotFoundError } from "../middleware/middlewareLogging.js";
 
 import { addDBPlayerResults, getDBPlayerResults, getDBPlayerResultsById, getDBPlayerResultsByNaviId } from "../db/query/playerResult.js";
-import { getDBFormatById } from "../db/query/format.js";
+import { getDBFormatByCode } from "../db/query/format.js";
 import { getDBEventSeriesByName } from "../db/query/eventSeries.js";
 import { getDBEventTypeByCode } from "../db/query/eventType.js";
 import { getDBRegionByCode } from "../db/query/region.js";
+import { getDBEventTimelineByEventYear } from "../db/query/eventTimeline.js";
 
 export async function createPlayerResult(req: Request, res: Response): Promise<void> {
     
-    const { bushiNaviId, playerName, formatId, rank, isSponsored, isFormComplete, invTakenHere, eventSeries, eventType, eventTimelineId, regionCode } = req.body;
+    const { bushiNaviId, playerName, formatCode, rank, isSponsored, isFormComplete, invTakenHere, eventSeries, eventType, eventTimelineYear, regionCode } = req.body;
 
-    if (!bushiNaviId || !playerName || !formatId || !rank || !isSponsored || !isFormComplete || !invTakenHere || !eventSeries || !eventType || !eventTimelineId || !regionCode) {
+    if (!bushiNaviId || !playerName || !formatCode || !rank || !isSponsored || !isFormComplete || !invTakenHere || !eventSeries || !eventType || !eventTimelineYear || !regionCode) {
         throw new BadRequestError("Missing required fields");
     }
 
+    const checkEventTimeline = await getDBEventTimelineByEventYear(eventTimelineYear);
+    if (!checkEventTimeline) {
+        throw new NotFoundError("Event Timeline not found");
+    }
+
     //First grab the format (Standard, Premium etc.)
-    const checkFormat = await getDBFormatById(formatId);
+    const checkFormat = await getDBFormatByCode(formatCode);
     if (!checkFormat) {
         throw new NotFoundError("Format not found");
     }
@@ -30,7 +36,7 @@ export async function createPlayerResult(req: Request, res: Response): Promise<v
     }
 
     //Then, grab the ID for the regional event series (Toronto, Texas etc.)
-    const checkEventSeries = await getDBEventSeriesByName(eventSeries, checkEventType.id, eventTimelineId);
+    const checkEventSeries = await getDBEventSeriesByName(eventSeries, checkEventType.id, checkEventTimeline.id);
     if (!checkEventSeries) {
         throw new NotFoundError("Event series not found");
     }
@@ -44,7 +50,7 @@ export async function createPlayerResult(req: Request, res: Response): Promise<v
     const addPlayerResults = await addDBPlayerResults({
         bushiNaviId: bushiNaviId,
         playerName: playerName,
-        formatId: checkFormat.id,
+        formatCode: checkFormat.code,
         rank: rank,
         isSponsored: isSponsored,
         isFormComplete: isFormComplete,
