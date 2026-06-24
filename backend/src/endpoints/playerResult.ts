@@ -7,12 +7,13 @@ import { addDBPlayerResults, getDBPlayerResults, getDBPlayerResultsById, getDBPl
 import { getDBFormatById } from "../db/query/format.js";
 import { getDBEventSeriesByName } from "../db/query/eventSeries.js";
 import { getDBEventTypeByCode } from "../db/query/eventType.js";
+import { getDBRegionByCode } from "../db/query/region.js";
 
 export async function createPlayerResult(req: Request, res: Response): Promise<void> {
     
-    const { bushiNaviId, playerName, formatId, rank, isSponsored, isFormComplete, invTakenHere, eventSeries, eventType, eventTimelineId, region } = req.body;
+    const { bushiNaviId, playerName, formatId, rank, isSponsored, isFormComplete, invTakenHere, eventSeries, eventType, eventTimelineId, regionCode } = req.body;
 
-    if (!bushiNaviId || !playerName || !formatId || !rank || !isSponsored || !isFormComplete || !invTakenHere || !eventSeries || !eventType || !eventTimelineId || !region) {
+    if (!bushiNaviId || !playerName || !formatId || !rank || !isSponsored || !isFormComplete || !invTakenHere || !eventSeries || !eventType || !eventTimelineId || !regionCode) {
         throw new BadRequestError("Missing required fields");
     }
 
@@ -34,7 +35,10 @@ export async function createPlayerResult(req: Request, res: Response): Promise<v
         throw new NotFoundError("Event series not found");
     }
 
-    // const checkRegion;
+    const checkRegion = await getDBRegionByCode(regionCode);
+    if (!checkRegion) {
+        throw new NotFoundError("Region not found");
+    }
 
     //If all checks pass, add player results to the database
     const addPlayerResults = await addDBPlayerResults({
@@ -47,7 +51,7 @@ export async function createPlayerResult(req: Request, res: Response): Promise<v
         invTakenHere: invTakenHere,
         eventTypeId: checkEventType.id,
         eventSeriesId: checkEventSeries.id,
-        regionId: 1
+        regionCode: checkRegion.code
     });
     if (!addPlayerResults) {
         throw new NotFoundError("Failed to create player results");

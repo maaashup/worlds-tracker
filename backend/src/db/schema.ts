@@ -36,7 +36,9 @@ export const eventSeries = pgTable("eventSeries", {
   eventTypeId: uuid("event_type_id")
     .notNull()
     .references(() => eventType.id, { onDelete: "cascade" }),
-  region: text("event_region").notNull(),
+  regionCode: text("region_code")
+    .notNull()
+    .references(() => regions.code, { onDelete: "cascade" }),
   date: date("event_date").notNull(),
   eventTimelineId: uuid("event_timeline_id")
     .notNull()
@@ -52,7 +54,7 @@ export type EventSeries = typeof eventSeries.$inferInsert
 export const format = pgTable("format", {
   id: uuid("id").primaryKey().defaultRandom(),
   name: text("name").notNull(),
-  active: boolean("active").notNull(),
+  isActive: boolean("is_active").notNull(),
   createdAt,
   updatedAt,
 });
@@ -77,9 +79,9 @@ export const playerResults = pgTable("playerResults", {
   eventSeriesId: uuid("event_series_id")
     .notNull()
     .references(() => eventSeries.id, { onDelete: "cascade" }),
-  regionId: integer("region_id")
+  regionCode: text("region_code")
     .notNull()
-    .references(() => regions.id, { onDelete: "cascade" }),
+    .references(() => regions.code, { onDelete: "cascade" }),
   createdAt,
   updatedAt,
 });
@@ -103,8 +105,7 @@ export type EventType = typeof eventType.$inferInsert
 
 export const regions = pgTable("regions", {
   id: serial("id").primaryKey(),
-  name: text("name").notNull(),
-  code: text("code").notNull(),
+  code: text("code").notNull().unique(),
   fullRegionName: text("full_region_name").notNull(),
   isActive: boolean("is_active").notNull(),
   createdAt,

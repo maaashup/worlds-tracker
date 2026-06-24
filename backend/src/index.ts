@@ -14,6 +14,7 @@ import { createEventType, getAllEventTypes, getEventTypeByCode } from "./endpoin
 import { createEventSeries } from "./endpoints/eventSeries.js";
 import { createFormat, getFormatById, getFormats } from "./endpoints/format.js";
 import { createPlayerResult, getPlayerResults, getPlayerResultsById, getPlayerResultsByNaviId } from "./endpoints/playerResult.js";
+import { createRegion, getRegionByCode, getRegions } from "./endpoints/region.js";
 
 const env = process.env;
 const PORT = env.API_PORT || 3000;
@@ -55,6 +56,10 @@ app.get("/api/event-type/code/:code", getEventTypeByCode);
 app.post("/api/format/create", createFormat);
 app.get("/api/format", getFormats);
 app.get("/api/format/id/:id", getFormatById);
+
+app.post("/api/regions/create", createRegion);
+app.get("/api/regions", getRegions);
+app.get("/api/regions/code/:code", getRegionByCode);
 
 
 app.use(middlewareErrorHandler);

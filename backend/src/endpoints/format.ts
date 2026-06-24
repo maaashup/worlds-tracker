@@ -18,7 +18,7 @@ export async function createFormat(req: Request, res: Response): Promise<void> {
         throw new BadRequestError("Format with this name already exists");
     }
 
-    const addFormat = await addDBFormat({ name, active: isActive });
+    const addFormat = await addDBFormat({ name, isActive });
     if (!addFormat) {
         throw new NotFoundError("Failed to create format");
     }

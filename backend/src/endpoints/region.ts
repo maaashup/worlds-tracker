@@ -7,12 +7,12 @@ import { addDBRegion, getDBRegions, getDBRegionByCode } from "../db/query/region
 
 
 export async function createRegion(req: Request, res: Response): Promise<void> {
-    const { name, code, fullRegionName, isActive } = req.body;
-    if (!name || !code || !fullRegionName || isActive === undefined) {
+    const { code, fullRegionName, isActive } = req.body;
+    if (!code || !fullRegionName || !isActive) {
         throw new BadRequestError("Missing required fields");
     }
 
-    const addRegion = await addDBRegion({ name, code, fullRegionName, isActive });
+    const addRegion = await addDBRegion({ code, fullRegionName, isActive });
     if (!addRegion) {
         throw new NotFoundError("Failed to create region");
     }
