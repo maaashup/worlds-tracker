@@ -26,3 +26,8 @@ export async function getDBEventSeriesByName(name: string, eventTypeId: string, 
     const [result] = await db.select().from(eventSeries).where(and(eq(eventSeries.name, name), eq(eventSeries.eventTypeId, eventTypeId), eq(eventSeries.eventTimelineId, eventTimelineId)));
     return result;
 }
+
+export async function getDBAllEventSeriesByTLYearAndEventType(eventTimelineId: string, eventTypeId: string) {
+    const result = await db.select({id: eventSeries.id, name: eventSeries.name, regionCode: eventSeries.regionCode, eventDate: eventSeries.date}).from(eventSeries).where(and(eq(eventSeries.eventTimelineId, eventTimelineId), eq(eventSeries.eventTypeId, eventTypeId)));
+    return result;
+}

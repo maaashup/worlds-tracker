@@ -3,7 +3,7 @@ import { Request, Response } from "express";
 import { respondWithJSON } from "../helperfunctions/respondWithJSON.js";
 import { BadRequestError } from "../middleware/middlewareLogging.js";
 
-import { addDBEventSeries, getDBEventSeries, getDBEventSeriesById } from "../db/query/eventSeries.js";
+import { addDBEventSeries, getDBAllEventSeriesByTLYearAndEventType, getDBEventSeries, getDBEventSeriesById } from "../db/query/eventSeries.js";
 import { getDBEventTypeByCode } from "../db/query/eventType.js";
 import { getDBEventTimelineByEventYear } from "../db/query/eventTimeline.js";
 import { getDBRegionByCode } from "../db/query/region.js";
@@ -49,4 +49,12 @@ export async function getAllEventSeries(req: Request, res: Response): Promise<vo
 
     return respondWithJSON(res, 200, allEventSeries);
 
+}
+
+export async function getAllEventSeriesForTimelineYearAndEventType(req: Request, res: Response) {
+    const { eventTimelineId, eventTypeId } = req.body;
+
+    const response = await getDBAllEventSeriesByTLYearAndEventType(eventTimelineId, eventTypeId);
+
+    return respondWithJSON(res, 200, response);
 }

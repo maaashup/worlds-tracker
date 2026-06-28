@@ -3,18 +3,18 @@ import { Request, Response } from "express";
 import { respondWithJSON } from "../helperfunctions/respondWithJSON.js";
 import { BadRequestError, NotFoundError } from "../middleware/middlewareLogging.js";
 
-import { addDBPlayerResults, getDBPlayerResults, getDBPlayerResultsById, getDBPlayerResultsByNaviId } from "../db/query/playerResult.js";
+import { addDBPlayerResults, getDBPlayerResults, getDBPlayerResultsById, getDBPlayerResultsByNaviId, getDBPlayerResultsForEventSeries } from "../db/query/playerResult.js";
 import { getDBFormatByCode } from "../db/query/format.js";
-import { getDBEventSeriesByName } from "../db/query/eventSeries.js";
+import { getDBAllEventSeriesByTLYearAndEventType, getDBEventSeriesByName } from "../db/query/eventSeries.js";
 import { getDBEventTypeByCode } from "../db/query/eventType.js";
 import { getDBRegionByCode } from "../db/query/region.js";
 import { getDBEventTimelineByEventYear } from "../db/query/eventTimeline.js";
 
 export async function createPlayerResult(req: Request, res: Response): Promise<void> {
     
-    const { bushiNaviId, playerName, formatCode, rank, isSponsored, isFormComplete, invTakenHere, eventSeries, eventType, eventTimelineYear, regionCode } = req.body;
+    const { bushiNaviId, playerName, formatCode, rank, isSponsored, isFormComplete, invTakenHere, isQualified, eventSeries, eventType, eventTimelineYear, regionCode } = req.body;
 
-    if (!bushiNaviId || !playerName || !formatCode || !rank || !isSponsored || !isFormComplete || !invTakenHere || !eventSeries || !eventType || !eventTimelineYear || !regionCode) {
+    if (!bushiNaviId || !playerName || !formatCode || !rank || isSponsored === undefined || isFormComplete === undefined || invTakenHere === undefined || isQualified === undefined || !eventSeries || !eventType || !eventTimelineYear || !regionCode) {
         throw new BadRequestError("Missing required fields");
     }
 
@@ -55,6 +55,7 @@ export async function createPlayerResult(req: Request, res: Response): Promise<v
         isSponsored: isSponsored,
         isFormComplete: isFormComplete,
         invTakenHere: invTakenHere,
+        isQualified: isQualified,
         eventTypeId: checkEventType.id,
         eventSeriesId: checkEventSeries.id,
         regionCode: checkRegion.code
@@ -93,4 +94,31 @@ export async function getPlayerResultsById(req: Request, res: Response): Promise
         throw new NotFoundError("Player result not found");
     }
     respondWithJSON(res, 200, playerResults);
+}
+
+export async function getAllPlayerResultsByTimelineAndEventType(req: Request, res: Response): Promise<void> {
+    const { eventTimelineId, eventTypeId } = req.body;
+    // Get all events for the timeline year and for the specific event type.
+    const events = await getDBAllEventSeriesByTLYearAndEventType(eventTimelineId, eventTypeId);
+    if (!events) {
+        throw new NotFoundError("Event Series could not be found");
+    }
+
+    const prArray = [];
+
+    // Loop through each event and store the data.
+    for (const event of events) {
+        const prData = await getDBPlayerResultsForEventSeries(event.id);
+        const dataArray = {
+            id: event.id,
+            event: event.name,
+            date: event.eventDate,
+            region: event.regionCode,
+            results: prData
+        };
+
+        prArray.push(dataArray);
+    }
+
+    respondWithJSON(res, 200, {data: prArray});
 }
