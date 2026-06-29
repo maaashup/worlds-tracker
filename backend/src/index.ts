@@ -1,5 +1,5 @@
 import express from "express";
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 
 import { middlewareLogging, middlewareErrorHandler } from "./middleware/middlewareLogging.js";
 import { respondWithJSON } from "./helperfunctions/respondWithJSON.js";
@@ -21,6 +21,18 @@ const PORT = env.API_PORT || 3000;
 const API_URL = env.API_URL;
 
 const app = express();
+
+app.use((req: Request, res: Response, next: NextFunction) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+
+  if (req.method === 'OPTIONS') {
+    return res.sendStatus(200);
+  }
+
+  next();
+});
 
 app.use(middlewareLogging);
 app.use(express.json());

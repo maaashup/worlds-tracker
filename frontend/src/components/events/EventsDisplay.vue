@@ -2,8 +2,11 @@
     <main>
         <div class="filter-wrapper">Filters here</div>
         <div class="data-wrapper">
-            <li v-for="event in events" :key="event.id">
-                {{ event.name }}
+            <li v-for="summary in eventsSummary" :key="summary.id">
+                {{ summary.event }}
+                {{ summary.date }}
+                {{ summary.region }}
+                {{ summary.eventType }}
             </li>
         </div>
     </main>
@@ -11,9 +14,9 @@
 </template>
 
 <script setup lang="ts">
-import { type EventSeries } from '@/../shared/array-types';
+import { type IEventSummaryArray } from '@/../shared/array-types';
 
-defineProps<{events: EventSeries[]}>();
+defineProps<{eventsSummary: IEventSummaryArray}>();
 
 </script>
 

@@ -4,7 +4,7 @@
     <p>Look up, create and add events/player results</p>
 
     <div class="events-container">
-      <EventsDisplay :events="events" />
+      <EventsDisplay :eventsSummary="eventsSummary" />
       
 
     </div>
@@ -14,21 +14,27 @@
 <script setup lang="ts">
 import EventsDisplay from '@/components/events/EventsDisplay.vue';
 
-import { type EventSeries } from '@/../shared/array-types';
+import { type IEventSummaryArray } from '@/../shared/array-types';
 import { onMounted, ref } from 'vue';
 import { API_PATH, API_BASE_URL } from '@/services/api-path';
 
 onMounted(async () => {
   try {
-    const response = await fetch(`${API_BASE_URL}/${API_PATH.eventseries}`);
+    const params = new URLSearchParams({
+      eventTimelineId: '8e733b6e-95ad-474f-a6f9-f958ed953279',
+      eventTypeId: 'f3d10970-02b1-47b3-ba7a-f304574330fa',
+    });
+
+    const response = await fetch(`${API_BASE_URL}/${API_PATH.playerResults}/timelineandeventtype?${params.toString()}`);
     if (!response.ok) throw new Error(await response.text());
-    events.value = await response.json();
+    const payload = await response.json();
+    eventsSummary.value = payload.data ?? [];
   } catch (err) {
     console.error('Event fetch failed', err);
   }
 });
 
-const events = ref<EventSeries[]>([]);
+const eventsSummary = ref<IEventSummaryArray>([]);
 
 </script>
 

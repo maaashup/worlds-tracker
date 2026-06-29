@@ -97,9 +97,14 @@ export async function getPlayerResultsById(req: Request, res: Response): Promise
 }
 
 export async function getAllPlayerResultsByTimelineAndEventType(req: Request, res: Response): Promise<void> {
-    const { eventTimelineId, eventTypeId } = req.body;
+    const payload = (req.method === 'GET' ? req.query : req.body) as {
+        eventTimelineId?: string;
+    };
+
+    const eventTimelineId = payload?.eventTimelineId as string;
+
     // Get all events for the timeline year and for the specific event type.
-    const events = await getDBAllEventSeriesByTLYearAndEventType(eventTimelineId, eventTypeId);
+    const events = await getDBAllEventSeriesByTLYearAndEventType(eventTimelineId);
     if (!events) {
         throw new NotFoundError("Event Series could not be found");
     }
@@ -114,6 +119,7 @@ export async function getAllPlayerResultsByTimelineAndEventType(req: Request, re
             event: event.name,
             date: event.eventDate,
             region: event.regionCode,
+            eventType: event.eventType,
             results: prData
         };
 

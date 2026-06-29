@@ -1,7 +1,7 @@
 import { eq, and } from "drizzle-orm";
 
 import { db } from "../index.js";
-import { eventSeries, type EventSeries } from "../schema.js";
+import { eventSeries, eventType, type EventSeries } from "../schema.js";
 
 export async function addDBEventSeries(event: EventSeries) {
     const [result] = await db
@@ -27,7 +27,10 @@ export async function getDBEventSeriesByName(name: string, eventTypeId: string, 
     return result;
 }
 
-export async function getDBAllEventSeriesByTLYearAndEventType(eventTimelineId: string, eventTypeId: string) {
-    const result = await db.select({id: eventSeries.id, name: eventSeries.name, regionCode: eventSeries.regionCode, eventDate: eventSeries.date}).from(eventSeries).where(and(eq(eventSeries.eventTimelineId, eventTimelineId), eq(eventSeries.eventTypeId, eventTypeId)));
+export async function getDBAllEventSeriesByTLYearAndEventType(eventTimelineId: string) {
+    const result = await db.select({id: eventSeries.id, name: eventSeries.name, regionCode: eventSeries.regionCode, eventDate: eventSeries.date, eventType: eventType.code})
+                           .from(eventSeries)
+                           .innerJoin(eventType, eq(eventType.id, eventSeries.eventTypeId))
+                           .where(eq(eventSeries.eventTimelineId, eventTimelineId)).orderBy(eventSeries.date);
     return result;
 }
