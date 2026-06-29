@@ -4,7 +4,7 @@
     <p>Look up, create and add events/player results</p>
 
     <div class="events-container">
-      <EventsDisplay :eventsSummary="eventsSummary" />
+      <EventsDisplay :groupedEventsSummary="groupedEventsSummary" />
       
 
     </div>
@@ -15,14 +15,13 @@
 import EventsDisplay from '@/components/events/EventsDisplay.vue';
 
 import { type IEventSummaryArray } from '@/../shared/array-types';
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, computed } from 'vue';
 import { API_PATH, API_BASE_URL } from '@/services/api-path';
 
 onMounted(async () => {
   try {
     const params = new URLSearchParams({
-      eventTimelineId: '8e733b6e-95ad-474f-a6f9-f958ed953279',
-      eventTypeId: 'f3d10970-02b1-47b3-ba7a-f304574330fa',
+      eventTimelineId: '8e733b6e-95ad-474f-a6f9-f958ed953279'
     });
 
     const response = await fetch(`${API_BASE_URL}/${API_PATH.playerResults}/timelineandeventtype?${params.toString()}`);
@@ -35,6 +34,26 @@ onMounted(async () => {
 });
 
 const eventsSummary = ref<IEventSummaryArray>([]);
+
+const groupedEventsSummary = computed(() => {
+  const grouped = new Map<string, IEventSummaryArray>();
+
+  for (const summary of eventsSummary.value) {
+    const eventType = summary.eventType || 'Uncategorized';
+    const existingGroup = grouped.get(eventType);
+
+    if (existingGroup) {
+      existingGroup.push(summary);
+    } else {
+      grouped.set(eventType, [summary]);
+    }
+  }
+
+  return Array.from(grouped.entries()).map(([eventType, items]) => ({
+    eventType,
+    items
+  }));
+});
 
 </script>
 

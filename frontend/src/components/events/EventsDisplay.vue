@@ -2,12 +2,17 @@
     <main>
         <div class="filter-wrapper">Filters here</div>
         <div class="data-wrapper">
-            <li v-for="summary in eventsSummary" :key="summary.id">
-                {{ summary.event }}
-                {{ summary.date }}
-                {{ summary.region }}
-                {{ summary.eventType }}
-            </li>
+           <section v-for="group in groupedEventsSummary" :key="group.eventType">
+                <h2>{{ group.eventType }}</h2>
+                <ul>
+                    <li v-for="summary in group.items" :key="summary.id">
+                        {{ summary.event }}
+                        {{ summary.date }}
+                        {{ summary.region }}
+                        {{ summary.eventType }}
+                    </li>
+                </ul>
+           </section>
         </div>
     </main>
 
@@ -16,7 +21,12 @@
 <script setup lang="ts">
 import { type IEventSummaryArray } from '@/../shared/array-types';
 
-defineProps<{eventsSummary: IEventSummaryArray}>();
+type GroupedEventsSummary = {
+    eventType: string;
+    items: IEventSummaryArray;
+}
+
+defineProps<{groupedEventsSummary: GroupedEventsSummary[]}>();
 
 </script>
 
