@@ -90,6 +90,5 @@ const groupedEventsSummary = computed(() => {
     max-width: 80vw;
     max-height: 80vh;
     flex: 1; // Fills the remaining vertical space dynamically
-    background-color: lightgray;
   }
 </style>
