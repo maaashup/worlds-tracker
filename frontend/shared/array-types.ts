@@ -1,4 +1,4 @@
-interface EventSeries {
+export interface EventSeries {
     id: string;
     name: string;
     eventTypeId: string;
@@ -9,7 +9,7 @@ interface EventSeries {
 
 export type EventSeriesArray = EventSeries[];
 
-interface IEventSummary {
+export interface IEventSummary {
     id: string;
     event: string;
     date: string;
@@ -18,7 +18,7 @@ interface IEventSummary {
     results: playerResults[];
 }
 
-interface playerResults {
+export interface playerResults {
     bushiNaviId: string;
     playerName: string;
     formatCode: string;
