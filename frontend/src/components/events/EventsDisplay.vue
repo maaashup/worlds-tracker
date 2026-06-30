@@ -1,9 +1,15 @@
 <template>
     <main>
-        <div class="filter-wrapper">Filters here</div>
+        <div class="filter-wrapper">
+            <SearchForm @search="handleSearch"/>
+            <div class="filter-separator"> | </div>
+            <RadioRegion @filterRegion="handleFilterRegion"/>
+            
+        </div>
+
         <div class="data-wrapper">
             <div class="data-scroll">
-                <section v-for="group in groupedEventsSummary" :key="group.eventType" class="event-group">
+                <section v-for="group in filteredEventsSummary" :key="group.eventType" class="event-group">
                     <h2>{{ group.eventType }}</h2>
                     <ul class="summary-grid">
                         <li v-for="summary in group.items" :key="summary.id" class="summary-card">
@@ -23,23 +29,89 @@
 </template>
 
 <script setup lang="ts">
+import { ref, computed } from 'vue';
+
 import { type IEventSummaryArray } from '@/../shared/array-types';
 import { formatDate } from '@/../shared/helperfunctions';
+
+import SearchForm from '@/components/events/SearchForm.vue';
+import RadioRegion from '@/components/events/RadioRegion.vue';
 
 type GroupedEventsSummary = {
     eventType: string;
     items: IEventSummaryArray;
 }
 
-defineProps<{ groupedEventsSummary: GroupedEventsSummary[] }>();
+const searchFilter = ref('');
+const regionFilter = ref('');
 
+const props = defineProps<{ groupedEventsSummary: GroupedEventsSummary[] }>();
 
+const filteredEventsSummary = computed(() => {
+    let groups = props.groupedEventsSummary;
+
+    const filterValue = searchFilter.value.trim().toLowerCase();
+
+    switch (regionFilter.value) {
+        case 'EU':
+            groups = groups.map(group => ({
+                ...group,
+                items: group.items.filter(item => item.region === 'EU'),
+            })).filter(group => group.items.length > 0);
+            break;
+        case 'NALA':
+            groups = groups.map(group => ({
+                ...group,
+                items: group.items.filter(item => item.region === 'NALA'),
+            })).filter(group => group.items.length > 0);
+            break;
+        case 'AO':
+            groups = groups.map(group => ({
+                ...group,
+                items: group.items.filter(item => item.region === 'AO'),
+            })).filter(group => group.items.length > 0);
+            break;
+    }
+
+    if (filterValue !== '') {
+        groups = groups
+            .map(group => ({
+                ...group,
+                items: group.items.filter(item => item.event.toLowerCase().includes(filterValue)),
+            }))
+            .filter(group => group.items.length > 0);
+    }
+
+    return groups;
+});
+
+const handleSearch = (search: string) => {
+    searchFilter.value = search;
+};
+
+const handleFilterRegion = (filterRegion: string) => {
+    regionFilter.value = filterRegion;
+};
 
 </script>
 
 <style lang="scss" scoped>
 .filter-wrapper {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    min-width: 0;
+    background: var(--surface, #ffffff);
+    border-radius: 1rem;
+    border: 1px solid rgba(15, 23, 42, 0.08);
+    padding: 1rem;
     margin-bottom: 1.5rem;
+}
+
+.filter-separator {
+    margin: 0 1rem;
+    color: var(--text-muted, #475569);
+    font-size: 0.92rem;
 }
 
 .data-wrapper {
@@ -48,7 +120,7 @@ defineProps<{ groupedEventsSummary: GroupedEventsSummary[] }>();
     background: var(--surface, #f8fafc);
     border-radius: 1rem;
     border: 1px solid rgba(15, 23, 42, 0.08);
-    box-shadow: 0 18px 40px rgba(15, 23, 42, 0.04);
+    box-shadow: 0 18px 40px rgba(40, 43, 51, 0.04);
     padding: 1rem;
     min-height: 60vh;
     max-height: 70vh;

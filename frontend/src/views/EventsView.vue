@@ -5,8 +5,6 @@
 
     <div class="events-container">
       <EventsDisplay :groupedEventsSummary="groupedEventsSummary" />
-      
-
     </div>
   </main>
 </template>
@@ -54,6 +52,8 @@ const groupedEventsSummary = computed(() => {
     items
   }));
 });
+
+
 
 </script>
 
