@@ -1,5 +1,5 @@
 <template>
-    <form class="form-wrapper">
+    <form class="form-wrapper" @submit.prevent>
         <div class="search-bar-wrapper">
             <input type="text" @input="search" placeholder="Search Event" class="search-bar"/>
         </div>
