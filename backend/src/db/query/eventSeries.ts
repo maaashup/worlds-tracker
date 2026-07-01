@@ -27,8 +27,8 @@ export async function getDBEventSeriesByName(name: string, eventTypeId: string, 
     return result;
 }
 
-export async function getDBAllEventSeriesByTLYearAndEventType(eventTimelineId: string) {
-    const result = await db.select({id: eventSeries.id, name: eventSeries.name, regionCode: eventSeries.regionCode, eventDate: eventSeries.date, eventType: eventType.code})
+export async function getDBAllEventSeriesByTLYear(eventTimelineId: string) {
+    const result = await db.select({id: eventSeries.id, name: eventSeries.name, regionCode: eventSeries.regionCode, eventDate: eventSeries.date, eventType: eventType.code, formats: eventSeries.formats})
                            .from(eventSeries)
                            .innerJoin(eventType, eq(eventType.id, eventSeries.eventTypeId))
                            .where(eq(eventSeries.eventTimelineId, eventTimelineId)).orderBy(eventSeries.date);

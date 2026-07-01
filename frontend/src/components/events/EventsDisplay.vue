@@ -1,10 +1,10 @@
 <template>
     <main>
         <div class="filter-wrapper">
-            <SearchForm @search="handleSearch"/>
+            <SearchForm @search="handleSearch" />
             <div class="filter-separator"> | </div>
-            <RadioRegion @filterRegion="handleFilterRegion"/>
-            
+            <RadioRegion @filterRegion="handleFilterRegion" />
+
         </div>
 
         <div class="data-wrapper">
@@ -13,12 +13,14 @@
                     <h2>{{ group.eventType }}</h2>
                     <ul class="summary-grid">
                         <li v-for="summary in group.items" :key="summary.id" class="summary-card">
-                            <div class="summary-card__title">{{ summary.event }}</div>
-                            <div class="summary-card__meta">
-                                <span class="summary-card__date">{{ formatDate(summary.date) }}</span>
-                                <span class="summary-card__region">{{ summary.region }}</span>
-                            </div>
-                            <div class="summary-card__type">{{ summary.eventType }}</div>
+                            <router-link :to="{ name: 'event-details', params: { id: summary.id }}" class="summary-card__link">
+                                <div class="summary-card__title">{{ summary.event }}</div>
+                                <div class="summary-card__meta">
+                                    <span class="summary-card__date">{{ formatDate(summary.date) }}</span>
+                                    <span class="summary-card__region">{{ summary.region }}</span>
+                                </div>
+                                <div class="summary-card__type">{{ summary.eventType }}</div>
+                            </router-link>
                         </li>
                     </ul>
                 </section>
@@ -180,6 +182,10 @@ const handleFilterRegion = (filterRegion: string) => {
     flex-direction: column;
     gap: 0.75rem;
     transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.summary-card__link {
+    text-decoration: none;
 }
 
 .summary-card:hover {

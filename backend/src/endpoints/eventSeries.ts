@@ -3,7 +3,7 @@ import { Request, Response } from "express";
 import { respondWithJSON } from "../helperfunctions/respondWithJSON.js";
 import { BadRequestError } from "../middleware/middlewareLogging.js";
 
-import { addDBEventSeries, getDBAllEventSeriesByTLYearAndEventType, getDBEventSeries, getDBEventSeriesById } from "../db/query/eventSeries.js";
+import { addDBEventSeries, getDBAllEventSeriesByTLYear, getDBEventSeries, getDBEventSeriesById } from "../db/query/eventSeries.js";
 import { getDBEventTypeByCode } from "../db/query/eventType.js";
 import { getDBEventTimelineByEventYear } from "../db/query/eventTimeline.js";
 import { getDBRegionByCode } from "../db/query/region.js";
@@ -12,10 +12,10 @@ import { getDBRegionByCode } from "../db/query/region.js";
 
 
 export async function createEventSeries(req: Request, res: Response): Promise<void> {
-    const { name, eventType, regionCode, eventTimeline, date } = req.body;
+    const { name, eventType, regionCode, eventTimeline, formats, date } = req.body;
 
-    if (!name || !eventType || !regionCode || !eventTimeline || !date) {
-        throw new BadRequestError("Missing one of the required fields: name, eventType, region, eventTimeline, date");
+    if (!name || !eventType || !regionCode || !eventTimeline || !formats || !date) {
+        throw new BadRequestError("Missing one of the required fields: name, eventType, region, eventTimeline, formats, date");
     }
 
     //Make sure that event-type is either: BCS, BSF, PW. -> If false, throw error.
@@ -36,7 +36,7 @@ export async function createEventSeries(req: Request, res: Response): Promise<vo
 
     // respondWithJSON(res, 201, {name: name, eventType: checkEventType.code, region, eventTimeline: validEventTimeline.id, date});
 
-    const newEventSeries = await addDBEventSeries({ name, eventTypeId: checkEventType.id, regionCode: checkRegion.code , eventTimelineId: validEventTimeline.id, date });
+    const newEventSeries = await addDBEventSeries({ name, eventTypeId: checkEventType.id, regionCode: checkRegion.code , eventTimelineId: validEventTimeline.id, formats, date });
     if (!newEventSeries) {
         throw new BadRequestError("Failed to create event series");
     }
@@ -51,10 +51,10 @@ export async function getAllEventSeries(req: Request, res: Response): Promise<vo
 
 }
 
-export async function getAllEventSeriesForTimelineYearAndEventType(req: Request, res: Response) {
-    const { eventTimelineId, eventTypeId } = req.body;
+export async function getAllEventSeriesForTimelineYear(req: Request, res: Response) {
+    const { eventTimelineId } = req.body;
 
-    const response = await getDBAllEventSeriesByTLYearAndEventType(eventTimelineId, eventTypeId);
+    const response = await getDBAllEventSeriesByTLYear(eventTimelineId);
 
     return respondWithJSON(res, 200, response);
 }

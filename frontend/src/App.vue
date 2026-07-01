@@ -22,6 +22,10 @@ import Sidebar from './components/sidebar/Sidebar.vue';
     --sidebar-width: 300px;
 }
 
+html {
+  height: 100%;
+}
+
 body {
   background: var(--light);
 }

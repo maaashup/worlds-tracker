@@ -43,6 +43,7 @@ export const eventSeries = pgTable("eventSeries", {
   eventTimelineId: uuid("event_timeline_id")
     .notNull()
     .references(() => eventTimeline.id, { onDelete: "cascade" }),
+  formats: text("formats").array().notNull().default(['D', 'WS', 'SVE']),
   createdAt,
   updatedAt,
 });

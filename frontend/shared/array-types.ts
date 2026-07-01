@@ -15,6 +15,7 @@ export interface IEventSummary {
     date: string;
     region: string;
     eventType: string;
+    formats: string[];
     results: playerResults[];
 }
 

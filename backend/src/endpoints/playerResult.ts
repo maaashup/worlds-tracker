@@ -5,7 +5,7 @@ import { BadRequestError, NotFoundError } from "../middleware/middlewareLogging.
 
 import { addDBPlayerResults, getDBPlayerResults, getDBPlayerResultsById, getDBPlayerResultsByNaviId, getDBPlayerResultsForEventSeries } from "../db/query/playerResult.js";
 import { getDBFormatByCode } from "../db/query/format.js";
-import { getDBAllEventSeriesByTLYearAndEventType, getDBEventSeriesByName } from "../db/query/eventSeries.js";
+import { getDBAllEventSeriesByTLYear, getDBEventSeriesByName } from "../db/query/eventSeries.js";
 import { getDBEventTypeByCode } from "../db/query/eventType.js";
 import { getDBRegionByCode } from "../db/query/region.js";
 import { getDBEventTimelineByEventYear } from "../db/query/eventTimeline.js";
@@ -104,7 +104,7 @@ export async function getAllPlayerResultsByTimelineAndEventType(req: Request, re
     const eventTimelineId = payload?.eventTimelineId as string;
 
     // Get all events for the timeline year and for the specific event type.
-    const events = await getDBAllEventSeriesByTLYearAndEventType(eventTimelineId);
+    const events = await getDBAllEventSeriesByTLYear(eventTimelineId);
     if (!events) {
         throw new NotFoundError("Event Series could not be found");
     }
@@ -120,6 +120,7 @@ export async function getAllPlayerResultsByTimelineAndEventType(req: Request, re
             date: event.eventDate,
             region: event.regionCode,
             eventType: event.eventType,
+            formats: event.formats,
             results: prData
         };
 

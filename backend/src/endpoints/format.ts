@@ -25,7 +25,7 @@ export async function createFormat(req: Request, res: Response): Promise<void> {
 
     const addFormat = await addDBFormat({ name, code, isActive });
     if (!addFormat) {
-        throw new NotFoundError("Failed to create format");
+        throw new BadRequestError("Failed to create format");
     }
 
     respondWithJSON(res, 201, addFormat);

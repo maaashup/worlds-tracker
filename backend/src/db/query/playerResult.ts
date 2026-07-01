@@ -31,7 +31,7 @@ export async function getDBPlayerResultsForEventSeries(eventSeriesId: string) {
                                     rank: playerResults.rank,
                                     isSponsored: playerResults.isSponsored,
                                     isFormComplete: playerResults.isFormComplete,
-                                    isQualified: playerResults.isQualified,
+                                    isQualified: playerResults.isQualified
                                 })
                     .from(playerResults)
                     .innerJoin(eventSeries, eq(playerResults.eventSeriesId, eventSeries.id))
