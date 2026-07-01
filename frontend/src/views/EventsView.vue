@@ -22,7 +22,7 @@ onMounted(async () => {
       eventTimelineId: '8e733b6e-95ad-474f-a6f9-f958ed953279'
     });
 
-    const response = await fetch(`${API_BASE_URL}/${API_PATH.playerResults}/timelineandeventtype?${params.toString()}`);
+    const response = await fetch(`${API_BASE_URL}/${API_PATH.playerResults}/timelinesummary?${params.toString()}`);
     if (!response.ok) throw new Error(await response.text());
     const payload = await response.json();
     eventsSummary.value = payload.data ?? [];

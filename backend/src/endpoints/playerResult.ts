@@ -96,7 +96,7 @@ export async function getPlayerResultsById(req: Request, res: Response): Promise
     respondWithJSON(res, 200, playerResults);
 }
 
-export async function getAllPlayerResultsByTimelineAndEventType(req: Request, res: Response): Promise<void> {
+export async function getAllPlayerResultsByTimeline(req: Request, res: Response): Promise<void> {
     const payload = (req.method === 'GET' ? req.query : req.body) as {
         eventTimelineId?: string;
     };
@@ -128,4 +128,18 @@ export async function getAllPlayerResultsByTimelineAndEventType(req: Request, re
     }
 
     respondWithJSON(res, 200, {data: prArray});
+}
+
+export async function getAllPlayerResultsByEventId(req: Request, res: Response): Promise<void> {
+    const payload = (req.method === 'GET' ? req.query : req.body) as {
+        eventId?: string;
+    };
+
+    const playerResults = await getDBPlayerResultsForEventSeries(payload.eventId as string);
+    if (!playerResults) {
+        throw new NotFoundError("Player Results could not be found");
+    }
+
+    respondWithJSON(res, 200, {data: playerResults});
+
 }

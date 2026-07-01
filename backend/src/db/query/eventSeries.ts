@@ -18,7 +18,10 @@ export async function getDBEventSeries() {
 }
 
 export async function getDBEventSeriesById(id: string) {
-    const [result] = await db.select().from(eventSeries).where(eq(eventSeries.id, id));
+    const [result] = await db.select({name: eventSeries.name, regionCode: eventSeries.regionCode, eventDate: eventSeries.date, eventType: eventType.code, formats: eventSeries.formats})
+                             .from(eventSeries)
+                             .innerJoin(eventType, eq(eventType.id, eventSeries.eventTypeId))
+                             .where(eq(eventSeries.id, id));
     return result;
 }
 

@@ -1,13 +1,10 @@
-export interface EventSeries {
-    id: string;
+export interface IEventDetailsSummary {
     name: string;
-    eventTypeId: string;
-    region: string;
-    date: string; // use ISO string for JSON transport; parse to Date when needed
-    EventTimelineId: string;
+    regionCode: string;
+    eventDate: string;
+    eventType: string;
+    formats: string[];
 }
-
-export type EventSeriesArray = EventSeries[];
 
 export interface IEventSummary {
     id: string;
@@ -20,6 +17,7 @@ export interface IEventSummary {
 }
 
 export interface playerResults {
+    id: string;
     bushiNaviId: string;
     playerName: string;
     formatCode: string;

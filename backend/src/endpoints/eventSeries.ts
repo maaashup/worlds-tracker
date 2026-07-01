@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 
 import { respondWithJSON } from "../helperfunctions/respondWithJSON.js";
-import { BadRequestError } from "../middleware/middlewareLogging.js";
+import { BadRequestError, NotFoundError } from "../middleware/middlewareLogging.js";
 
 import { addDBEventSeries, getDBAllEventSeriesByTLYear, getDBEventSeries, getDBEventSeriesById } from "../db/query/eventSeries.js";
 import { getDBEventTypeByCode } from "../db/query/eventType.js";
@@ -57,4 +57,21 @@ export async function getAllEventSeriesForTimelineYear(req: Request, res: Respon
     const response = await getDBAllEventSeriesByTLYear(eventTimelineId);
 
     return respondWithJSON(res, 200, response);
+}
+
+export async function getEventSummary(req: Request, res: Response) {
+    const payload = (req.method === 'GET' ? req.query : req.body) as {
+        eventId?: string;
+    };
+
+    if (!payload.eventId) {
+        throw new BadRequestError("Missing required field: eventId");
+    }
+
+    const summary = await getDBEventSeriesById(payload.eventId);
+    if (!summary) {
+        throw new NotFoundError("No event found");
+    }
+
+    return respondWithJSON(res, 200, {data: summary});
 }

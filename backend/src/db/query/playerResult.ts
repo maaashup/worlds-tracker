@@ -25,6 +25,7 @@ export async function getDBPlayerResultsByNaviId(naviId: string) {
 
 export async function getDBPlayerResultsForEventSeries(eventSeriesId: string) {
     const result = await db.select({
+                                    id: playerResults.id,
                                     bushiNaviId: playerResults.bushiNaviId,
                                     playerName: playerResults.playerName,
                                     formatCode: playerResults.formatCode,

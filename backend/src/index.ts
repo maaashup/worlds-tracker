@@ -11,9 +11,9 @@ import { config } from "./config.js";
 
 import { createEventTimeline, getAllEventTimelines, getEventTimelineByID, getEventTimelineByEventYear } from "./endpoints/eventTimeline.js";
 import { createEventType, getAllEventTypes, getEventTypeByCode } from "./endpoints/eventType.js";
-import { createEventSeries, getAllEventSeries, getAllEventSeriesForTimelineYear } from "./endpoints/eventSeries.js";
+import { createEventSeries, getAllEventSeries, getAllEventSeriesForTimelineYear, getEventSummary } from "./endpoints/eventSeries.js";
 import { createFormat, getFormatByCode, getFormatById, getFormats } from "./endpoints/format.js";
-import { createPlayerResult, getAllPlayerResultsByTimelineAndEventType, getPlayerResults, getPlayerResultsById, getPlayerResultsByNaviId } from "./endpoints/playerResult.js";
+import { createPlayerResult, getAllPlayerResultsByEventId, getAllPlayerResultsByTimeline, getPlayerResults, getPlayerResultsById, getPlayerResultsByNaviId } from "./endpoints/playerResult.js";
 import { createRegion, getRegionByCode, getRegions } from "./endpoints/region.js";
 
 const env = process.env;
@@ -53,13 +53,15 @@ app.get("/api/event-timeline/event-year/:eventYear", getEventTimelineByEventYear
 app.post("/api/event-series/create", createEventSeries);
 app.get("/api/event-series", getAllEventSeries);
 app.get("/api/event-series/all", getAllEventSeriesForTimelineYear);
+app.get("/api/event-series/summary", getEventSummary);
 
 //Player Results Endpoints:
 app.post("/api/player-result/create", createPlayerResult);
 app.get("/api/player-result/all", getPlayerResults);
 app.get("/api/player-result/id/:id", getPlayerResultsById);
 app.get("/api/player-result/navi-id/:naviId", getPlayerResultsByNaviId);
-app.get("/api/player-result/timelineandeventtype", getAllPlayerResultsByTimelineAndEventType);
+app.get("/api/player-result/timelinesummary", getAllPlayerResultsByTimeline);
+app.get("/api/player-result/results", getAllPlayerResultsByEventId);
 
 
 //Helper Endpoints:
