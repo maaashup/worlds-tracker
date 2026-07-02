@@ -1,18 +1,59 @@
 <template>
     <main>
         <div class="top-container">
-            <h1> {{ eventDetails?.eventType}} {{ eventDetails?.name}} ({{ eventDetails?.regionCode }})</h1>
+            <h1> {{ eventDetails?.eventType }} {{ eventDetails?.name }} ({{ eventDetails?.regionCode }})</h1>
             <h4>{{ formatDate(eventDetails?.eventDate as string) }}</h4>
             <button>Add Event</button>
         </div>
         <div class="main-container">
-            
+            <div class="data-container">
+                <article
+                    v-for="format in eventDetails?.formats ?? []"
+                    :key="format"
+                    class="format-card"
+                    :class="{ 'format-card--empty': !playersByFormat[format]?.length }"
+                >
+                    <h3 class="format-title">{{ format }}</h3>
+
+                    <div v-if="playersByFormat[format]?.length" class="table-wrapper">
+                        <table class="player-table">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Bushi Navi ID</th>
+                                    <th scope="col">Player Name</th>
+                                    <th scope="col">Rank</th>
+                                    <th scope="col">Sponsored</th>
+                                    <th scope="col">Form Complete</th>
+                                    <th scope="col">Qualified</th>
+                                    <th scope="col"></th>
+                                    <th scope="col"></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="player in playersByFormat[format]" :key="player.id">
+                                    <td>{{ player.bushiNaviId }}</td>
+                                    <td>{{ player.playerName }}</td>
+                                    <td>{{ player.rank }}</td>
+                                    <td>{{ player.isSponsored ? 'Yes' : 'No' }}</td>
+                                    <td>{{ player.isFormComplete ? 'Yes' : 'No' }}</td>
+                                    <td>{{ player.isQualified ? 'Yes' : 'No' }}</td>
+                                    <td><button>Edit</button></td>
+                                    <td><button>Delete</button></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <p v-else class="empty-state">No player results found for this format.</p>
+                </article>
+            </div>
+
         </div>
     </main>
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
 
 import { formatDate } from '@/../shared/helperfunctions';
@@ -61,8 +102,86 @@ onMounted(async () => {
 
 const playerSummary = ref<playerResults[]>([]);
 const eventDetails = ref<IEventDetailsSummary>();
+const playersByFormat = computed<Record<string, playerResults[]>>(() => {
+    const grouped: Record<string, playerResults[]> = {};
+
+    for (const player of playerSummary.value) {
+        const formatPlayers = grouped[player.formatCode] ?? [];
+        formatPlayers.push(player);
+        grouped[player.formatCode] = formatPlayers;
+    }
+
+    return grouped;
+});
 
 
 </script>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+.data-container {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+}
+
+.format-card {
+    border: 1px solid #d9d9d9;
+    border-radius: 0.75rem;
+    padding: 1rem;
+    background: #fff;
+}
+
+.format-card--empty {
+    display: flex;
+    flex-direction: column;
+    min-height: 18rem;
+}
+
+.format-title {
+    margin: 0 0 0.75rem;
+}
+
+.table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.player-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 520px;
+}
+
+.player-table th,
+.player-table td {
+    padding: 0.45rem 0.5rem;
+    border-bottom: 1px solid #efefef;
+    text-align: left;
+    font-size: 0.92rem;
+}
+
+.player-table th {
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.empty-state {
+    margin: 0;
+    color: #666;
+    font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.format-card--empty .empty-state {
+    flex: 1;
+}
+
+@media (max-width: 768px) {
+    .data-container {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
