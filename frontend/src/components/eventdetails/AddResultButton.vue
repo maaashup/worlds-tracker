@@ -7,7 +7,7 @@
                 <h2 id="add-result-title">Add Result</h2>
             </header>
 
-            <form class="modal-body" @submit.prevent="handleSave">
+            <form class="modal-body" @submit.prevent="handleSave" @keydown.enter.prevent>
                 <div class="form-wrapper">
                     <table class="form-table">
                         <thead>
@@ -21,87 +21,95 @@
                                 <th scope="col">Form Complete:</th>
                                 <th scope="col">Qualified:</th>
                                 <th scope="col">Invite Accepted Here:</th>
+                                <th scope="col">Actions:</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
+                            <tr v-for="(row, index) in rows" :key="row.id">
                                 <td>
                                     <input
                                         type="text"
-                                        name="bushiNaviId"
-                                        required
-                                        :class="{ 'input-invalid': fieldErrors.bushiNaviId }"
-                                        @input="validateInputField('bushiNaviId', $event)"
-                                        @blur="validateInputField('bushiNaviId', $event)"
+                                        v-model="row.bushiNaviId"
+                                        :class="{ 'input-invalid': !!rowErrors[index]?.bushiNaviId }"
+                                        @input="validateRowField(index, 'bushiNaviId')"
+                                        @blur="validateRowField(index, 'bushiNaviId')"
                                     />
-                                    <p v-if="fieldErrors.bushiNaviId" class="field-error">{{ fieldErrors.bushiNaviId }}</p>
+                                    <p v-if="rowErrors[index]?.bushiNaviId" class="field-error">{{ rowErrors[index]?.bushiNaviId }}</p>
                                 </td>
                                 <td>
                                     <input
                                         type="text"
-                                        name="playerName"
-                                        required
-                                        :class="{ 'input-invalid': fieldErrors.playerName }"
-                                        @input="validateInputField('playerName', $event)"
-                                        @blur="validateInputField('playerName', $event)"
+                                        v-model="row.playerName"
+                                        :class="{ 'input-invalid': !!rowErrors[index]?.playerName }"
+                                        @input="validateRowField(index, 'playerName')"
+                                        @blur="validateRowField(index, 'playerName')"
                                     />
-                                    <p v-if="fieldErrors.playerName" class="field-error">{{ fieldErrors.playerName }}</p>
+                                    <p v-if="rowErrors[index]?.playerName" class="field-error">{{ rowErrors[index]?.playerName }}</p>
                                 </td>
                                 <td>
                                     <select
-                                        name="format"
-                                        required
-                                        v-model="selectedFormat"
-                                        :class="{ 'input-invalid': fieldErrors.format }"
-                                        @change="validateSelectField('format', $event)"
-                                        @blur="validateSelectField('format', $event)"
+                                        v-model="row.formatCode"
+                                        :class="{ 'input-invalid': !!rowErrors[index]?.formatCode }"
+                                        @change="onFormatChanged(index)"
+                                        @blur="validateRowField(index, 'formatCode')"
                                     >
                                         <option value="" disabled>Select format</option>
                                         <option
                                             v-for="format in props.eventDetails?.formats ?? []"
                                             :key="format"
                                             :value="format"
-                                            :disabled="isFormatAtCapacity(format)"
-                                        >{{
-                                            format }}</option>
+                                            :disabled="isFormatAtCapacityForRow(format, index)"
+                                        >{{ format }}</option>
                                     </select>
-                                    <p v-if="fieldErrors.format" class="field-error">{{ fieldErrors.format }}</p>
+                                    <p v-if="rowErrors[index]?.formatCode" class="field-error">{{ rowErrors[index]?.formatCode }}</p>
                                 </td>
                                 <td>
-                                    <input type="text" name="regionCode" :value="props.eventDetails?.regionCode ?? ''" class="locked-input"
-                                        readonly tabindex="-1" aria-disabled="true" />
+                                    <input
+                                        type="text"
+                                        :value="props.eventDetails?.regionCode ?? ''"
+                                        class="locked-input"
+                                        readonly
+                                        tabindex="-1"
+                                        aria-disabled="true"
+                                    />
                                 </td>
                                 <td>
                                     <select
-                                        name="rank"
-                                        required
-                                        v-model="selectedRank"
-                                        :class="{ 'input-invalid': fieldErrors.rank }"
-                                        @change="validateSelectField('rank', $event)"
-                                        @blur="validateSelectField('rank', $event)"
+                                        v-model="row.rank"
+                                        :class="{ 'input-invalid': !!rowErrors[index]?.rank }"
+                                        @change="onRankChanged(index)"
+                                        @blur="validateRowField(index, 'rank')"
                                     >
                                         <option value="1">1</option>
                                         <option value="2">2</option>
                                         <option value="3">3</option>
                                         <option value="4">4</option>
                                     </select>
-                                    <p v-if="fieldErrors.rank" class="field-error">{{ fieldErrors.rank }}</p>
+                                    <p v-if="rowErrors[index]?.rank" class="field-error">{{ rowErrors[index]?.rank }}</p>
                                 </td>
                                 <td class="checkbox-cell">
                                     <input
                                         type="checkbox"
-                                        name="isSponsored"
-                                        v-model="isSponsoredChecked"
-                                        :disabled="selectedRank !== '1'"
-                                        :aria-disabled="selectedRank !== '1'"
+                                        v-model="row.isSponsored"
+                                        :disabled="row.rank !== '1'"
+                                        :aria-disabled="row.rank !== '1'"
                                     />
                                 </td>
-                                <td class="checkbox-cell"><input type="checkbox" name="isFormComplete" /></td>
-                                <td class="checkbox-cell"><input type="checkbox" name="isQualified" /></td>
-                                <td class="checkbox-cell"><input type="checkbox" name="invTakenHere" /></td>
+                                <td class="checkbox-cell"><input type="checkbox" v-model="row.isFormComplete" /></td>
+                                <td class="checkbox-cell"><input type="checkbox" v-model="row.isQualified" /></td>
+                                <td class="checkbox-cell"><input type="checkbox" v-model="row.invTakenHere" /></td>
+                                <td class="checkbox-cell row-action-cell">
+                                    <button type="button" class="remove-row-button" :disabled="rows.length === 1" @click="removeRow(index)">
+                                        Remove
+                                    </button>
+                                </td>
                             </tr>
                         </tbody>
                     </table>
+                </div>
+
+                <div class="row-controls">
+                    <button type="button" class="secondary" :disabled="rows.length >= 4" @click="addRow">Add Row</button>
                 </div>
 
                 <p v-if="errorMessage" class="form-error" role="alert">{{ errorMessage }}</p>
@@ -109,7 +117,7 @@
                 <div class="modal-actions">
                     <button type="button" class="secondary" @click="closeModal">Cancel</button>
                     <button type="submit" class="primary" :disabled="isSubmitting">
-                        {{ isSubmitting ? 'Adding...' : 'Add' }}
+                        {{ isSubmitting ? 'Adding...' : 'Add All' }}
                     </button>
                 </div>
             </form>
@@ -118,11 +126,45 @@
 </template>
 
 <script lang="ts" setup>
-import { onMounted, onUnmounted, ref, watch } from 'vue';
+import { onMounted, onUnmounted, ref } from 'vue';
 import type { IEventDetailsSummary, playerResults } from '../../../shared/array-types';
 
 import { useEventTimelineStore } from '@/stores/eventTimeline';
 import { API_BASE_URL, API_PATH } from '@/services/api-path';
+
+type RowModel = {
+    id: number;
+    bushiNaviId: string;
+    playerName: string;
+    formatCode: string;
+    rank: string;
+    isSponsored: boolean;
+    isFormComplete: boolean;
+    isQualified: boolean;
+    invTakenHere: boolean;
+};
+
+type RowErrors = {
+    bushiNaviId?: string;
+    playerName?: string;
+    formatCode?: string;
+    rank?: string;
+};
+
+type CreateResultPayload = {
+    bushiNaviId: string;
+    playerName: string;
+    formatCode: string;
+    rank: number;
+    isSponsored: boolean;
+    isFormComplete: boolean;
+    isQualified: boolean;
+    eventTimelineYear: string;
+    eventType: string;
+    eventSeries: string;
+    regionCode: string;
+    invTakenHere: boolean;
+};
 
 const eventTimelineStore = useEventTimelineStore();
 const emit = defineEmits<{
@@ -137,207 +179,293 @@ const props = defineProps<{
 const isOpen = ref(false);
 const errorMessage = ref('');
 const isSubmitting = ref(false);
-const fieldErrors = ref<FieldErrors>({});
-const selectedFormat = ref('');
-const selectedRank = ref('1');
-const isSponsoredChecked = ref(false);
+const nextRowId = ref(1);
+const rows = ref<RowModel[]>([]);
+const rowErrors = ref<RowErrors[]>([]);
 
+const createEmptyRow = (): RowModel => {
+    const row: RowModel = {
+        id: nextRowId.value,
+        bushiNaviId: '',
+        playerName: '',
+        formatCode: '',
+        rank: '1',
+        isSponsored: false,
+        isFormComplete: false,
+        isQualified: false,
+        invTakenHere: false,
+    };
 
-type FieldErrors = {
-    bushiNaviId?: string;
-    playerName?: string;
-    format?: string;
-    rank?: string;
+    nextRowId.value += 1;
+    return row;
 };
 
-type CreateResultPayload = {
-    bushiNaviId: string;
-    playerName: string;
-    formatCode: string;
-    rank: string;
-    isSponsored: boolean;
-    isFormComplete: boolean;
-    isQualified: boolean;
-    eventTimelineYear: string;
-    eventType: string;
-    eventSeries: string;
-    regionCode: string;
-    invTakenHere: boolean;
-};
-
-const validatePayload = (payload: CreateResultPayload): string | null => {
-    if (!payload.regionCode.trim()) return 'Region code is required.';
-    if (!payload.eventType.trim() || !payload.eventSeries.trim()) return 'Event details are still loading. Please try again.';
-    if (!payload.eventTimelineYear.trim()) return 'Event timeline year is missing.';
-
-    return null;
-};
-
-const validateFieldValue = (field: keyof FieldErrors, value: string): string => {
-    if (field === 'bushiNaviId') {
-        return value.trim() ? '' : 'Bushi Navi ID is required.';
-    }
-
-    if (field === 'playerName') {
-        return value.trim() ? '' : 'Player name is required.';
-    }
-
-    if (field === 'format') {
-        return value.trim() ? '' : 'Format is required.';
-    }
-
-    if (field === 'rank') {
-        const rankNumber = Number(value);
-        return Number.isInteger(rankNumber) && rankNumber > 0 ? '' : 'Rank must be at least 1.';
-    }
-
-    return '';
-};
-
-const setFieldError = (field: keyof FieldErrors, message: string) => {
-    if (message) {
-        fieldErrors.value[field] = message;
-        return;
-    }
-
-    delete fieldErrors.value[field];
-};
-
-const validateInputField = (field: 'bushiNaviId' | 'playerName', event: Event) => {
-    const value = (event.target as HTMLInputElement).value;
-    setFieldError(field, validateFieldValue(field, value));
-};
-
-const validateSelectField = (field: 'format' | 'rank', event: Event) => {
-    const value = (event.target as HTMLSelectElement).value;
-    setFieldError(field, validateFieldValue(field, value));
-};
-
-const validateAllFields = (formData: FormData): boolean => {
-    const nextErrors: FieldErrors = {};
-
-    const bushiNaviIdMessage = validateFieldValue('bushiNaviId', String(formData.get('bushiNaviId') ?? ''));
-    if (bushiNaviIdMessage) nextErrors.bushiNaviId = bushiNaviIdMessage;
-
-    const playerNameMessage = validateFieldValue('playerName', String(formData.get('playerName') ?? ''));
-    if (playerNameMessage) nextErrors.playerName = playerNameMessage;
-
-    const formatMessage = validateFieldValue('format', String(formData.get('format') ?? ''));
-    if (formatMessage) nextErrors.format = formatMessage;
-
-    const rankMessage = validateFieldValue('rank', String(formData.get('rank') ?? ''));
-    if (rankMessage) nextErrors.rank = rankMessage;
-
-    fieldErrors.value = nextErrors;
-    return Object.keys(nextErrors).length === 0;
-};
-
-const hasDuplicateRankForFormat = (formatCode: string, rank: string): boolean => {
-    const rankNumber = Number(rank);
-
-    return (props.existingResults ?? []).some((result) => {
-        return result.formatCode === formatCode && result.rank === rankNumber;
-    });
-};
-
-const getFormatRecordCount = (formatCode: string): number => {
-    return (props.existingResults ?? []).filter((result) => result.formatCode === formatCode).length;
-};
-
-const isFormatAtCapacity = (formatCode: string): boolean => {
-    return getFormatRecordCount(formatCode) >= 4;
+const resetModalState = () => {
+    errorMessage.value = '';
+    rows.value = [createEmptyRow()];
+    rowErrors.value = [{}];
 };
 
 const openModal = () => {
-    errorMessage.value = '';
-    fieldErrors.value = {};
-    selectedFormat.value = '';
-    selectedRank.value = '1';
-    isSponsoredChecked.value = false;
+    resetModalState();
     isOpen.value = true;
 };
 
 const closeModal = () => {
-    errorMessage.value = '';
-    fieldErrors.value = {};
-    selectedFormat.value = '';
-    selectedRank.value = '1';
-    isSponsoredChecked.value = false;
+    resetModalState();
     isOpen.value = false;
 };
 
-watch(selectedRank, (rank) => {
-    if (rank !== '1') {
-        isSponsoredChecked.value = false;
+const addRow = () => {
+    if (rows.value.length >= 4) {
+        return;
     }
-});
 
-const handleSave = async (event: Event) => {
-    const form = event.target as HTMLFormElement;
-    const formData = new FormData(form);
+    rows.value.push(createEmptyRow());
+    rowErrors.value.push({});
+};
+
+const removeRow = (index: number) => {
+    if (rows.value.length === 1) {
+        return;
+    }
+
+    rows.value.splice(index, 1);
+    rowErrors.value.splice(index, 1);
+};
+
+const validateRow = (row: RowModel): RowErrors => {
+    const errors: RowErrors = {};
+
+    if (!row.bushiNaviId.trim()) {
+        errors.bushiNaviId = 'Bushi Navi ID is required.';
+    }
+
+    if (!row.playerName.trim()) {
+        errors.playerName = 'Player name is required.';
+    }
+
+    if (!row.formatCode.trim()) {
+        errors.formatCode = 'Format is required.';
+    }
+
+    const rankNumber = Number(row.rank);
+    if (!Number.isInteger(rankNumber) || rankNumber < 1 || rankNumber > 4) {
+        errors.rank = 'Rank must be between 1 and 4.';
+    }
+
+    return errors;
+};
+
+const validateRowField = (index: number, field: keyof RowErrors) => {
+    const row = rows.value[index];
+    if (!row) {
+        return;
+    }
+
+    const rowValidation = validateRow(row);
+    const fieldMessage = rowValidation[field];
+
+    if (!rowErrors.value[index]) {
+        rowErrors.value[index] = {};
+    }
+
+    if (fieldMessage) {
+        rowErrors.value[index][field] = fieldMessage;
+        return;
+    }
+
+    delete rowErrors.value[index][field];
+};
+
+const validateAllRows = (): boolean => {
+    const nextErrors = rows.value.map((row) => validateRow(row));
+    rowErrors.value = nextErrors;
+    return nextErrors.every((rowError) => Object.keys(rowError).length === 0);
+};
+
+const getExistingCountForFormat = (formatCode: string): number => {
+    return (props.existingResults ?? []).filter((result) => result.formatCode === formatCode).length;
+};
+
+const getDraftCountForFormat = (formatCode: string, excludeRowIndex?: number): number => {
+    return rows.value.filter((row, index) => {
+        if (excludeRowIndex !== undefined && index === excludeRowIndex) {
+            return false;
+        }
+
+        return row.formatCode === formatCode;
+    }).length;
+};
+
+const isFormatAtCapacityForRow = (formatCode: string, rowIndex: number): boolean => {
+    if (!formatCode.trim()) {
+        return false;
+    }
+
+    const reservedCount = getExistingCountForFormat(formatCode) + getDraftCountForFormat(formatCode, rowIndex);
+    const isCurrentSelection = rows.value[rowIndex]?.formatCode === formatCode;
+    return reservedCount >= 4 && !isCurrentSelection;
+};
+
+const onFormatChanged = (index: number) => {
+    validateRowField(index, 'formatCode');
+};
+
+const onRankChanged = (index: number) => {
+    const row = rows.value[index];
+    if (!row) {
+        return;
+    }
+
+    if (row.rank !== '1') {
+        row.isSponsored = false;
+    }
+
+    validateRowField(index, 'rank');
+};
+
+const validateGlobalContext = (): string | null => {
+    if (!(props.eventDetails?.regionCode ?? '').trim()) return 'Region code is required.';
+    if (!(props.eventDetails?.eventType ?? '').trim() || !(props.eventDetails?.name ?? '').trim()) {
+        return 'Event details are still loading. Please try again.';
+    }
+    if (!eventTimelineStore.eventTimelineYear.trim()) return 'Event timeline year is missing.';
+
+    return null;
+};
+
+const applyCrossRowConstraints = (): boolean => {
+    let hasError = false;
+
+    const existingByFormatRank = new Set(
+        (props.existingResults ?? []).map((result) => `${result.formatCode}::${result.rank}`),
+    );
+
+    const seenDraftRank = new Map<string, number>();
+    const totalByFormat = new Map<string, number>();
+
+    for (const existing of props.existingResults ?? []) {
+        const current = totalByFormat.get(existing.formatCode) ?? 0;
+        totalByFormat.set(existing.formatCode, current + 1);
+    }
+
+    rows.value.forEach((row, index) => {
+        if (!rowErrors.value[index]) {
+            rowErrors.value[index] = {};
+        }
+
+        const currentRowErrors = rowErrors.value[index];
+        if (!currentRowErrors) {
+            return;
+        }
+
+        const formatCode = row.formatCode;
+        const rank = Number(row.rank);
+
+        if (!formatCode) {
+            return;
+        }
+
+        const currentFormatCount = totalByFormat.get(formatCode) ?? 0;
+        totalByFormat.set(formatCode, currentFormatCount + 1);
+
+        if ((totalByFormat.get(formatCode) ?? 0) > 4) {
+            currentRowErrors.formatCode = `${formatCode} already has 4 records.`;
+            hasError = true;
+        }
+
+        const key = `${formatCode}::${rank}`;
+        if (existingByFormatRank.has(key)) {
+            currentRowErrors.rank = `Rank ${row.rank} is already used for ${formatCode}.`;
+            hasError = true;
+            return;
+        }
+
+        const firstIndex = seenDraftRank.get(key);
+        if (firstIndex !== undefined) {
+            currentRowErrors.rank = `Rank ${row.rank} is duplicated in this submission.`;
+
+            if (!rowErrors.value[firstIndex]) {
+                rowErrors.value[firstIndex] = {};
+            }
+
+            const firstRowErrors = rowErrors.value[firstIndex];
+            if (firstRowErrors) {
+                firstRowErrors.rank = `Rank ${row.rank} is duplicated in this submission.`;
+            }
+
+            hasError = true;
+            return;
+        }
+
+        seenDraftRank.set(key, index);
+    });
+
+    return !hasError;
+};
+
+const buildPayload = (row: RowModel): CreateResultPayload => {
+    return {
+        bushiNaviId: row.bushiNaviId.trim(),
+        playerName: row.playerName.trim(),
+        formatCode: row.formatCode,
+        rank: Number(row.rank),
+        isSponsored: row.isSponsored,
+        isFormComplete: row.isFormComplete,
+        isQualified: row.isQualified,
+        eventTimelineYear: eventTimelineStore.eventTimelineYear,
+        eventType: props.eventDetails?.eventType ?? '',
+        eventSeries: props.eventDetails?.name ?? '',
+        regionCode: props.eventDetails?.regionCode ?? '',
+        invTakenHere: row.invTakenHere,
+    };
+};
+
+const handleSave = async () => {
     errorMessage.value = '';
 
-    const areInlineFieldsValid = validateAllFields(formData);
-    if (!areInlineFieldsValid) {
+    const areRowsValid = validateAllRows();
+    if (!areRowsValid) {
         errorMessage.value = 'Please fix the highlighted fields.';
         return;
     }
 
-    const payload = {
-        bushiNaviId: formData.get('bushiNaviId') as string,
-        playerName: formData.get('playerName') as string,
-        formatCode: formData.get('format') as string,
-        rank: formData.get('rank') as string,
-        isSponsored: formData.get('isSponsored') === 'on',
-        isFormComplete: formData.get('isFormComplete') === 'on',
-        isQualified: formData.get('isQualified') === 'on',
-        eventTimelineYear: eventTimelineStore.eventTimelineYear,
-        eventType: props.eventDetails?.eventType ?? '',
-        eventSeries: props.eventDetails?.name ?? '',
-        regionCode: formData.get('regionCode') as string,
-        invTakenHere: formData.get('invTakenHere') === 'on',
-    };
-
-    if (isFormatAtCapacity(payload.formatCode)) {
-        const fullFormatMessage = `${payload.formatCode} already has 4 records.`;
-        setFieldError('format', fullFormatMessage);
-        errorMessage.value = fullFormatMessage;
+    const globalValidationError = validateGlobalContext();
+    if (globalValidationError) {
+        errorMessage.value = globalValidationError;
         return;
     }
 
-    if (hasDuplicateRankForFormat(payload.formatCode, payload.rank)) {
-        const duplicateMessage = `Rank ${payload.rank} is already used for ${payload.formatCode}.`;
-        setFieldError('rank', duplicateMessage);
-        errorMessage.value = duplicateMessage;
-        return;
-    }
-
-    const validationError = validatePayload(payload);
-    if (validationError) {
-        errorMessage.value = validationError;
+    const areCrossRowRulesValid = applyCrossRowConstraints();
+    if (!areCrossRowRulesValid) {
+        errorMessage.value = 'Please resolve duplicate rank or format capacity issues.';
         return;
     }
 
     try {
         isSubmitting.value = true;
 
-        const response = await fetch(`${API_BASE_URL}/${API_PATH.playerResults}/create`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(payload),
-        });
+        for (const [index, row] of rows.value.entries()) {
+            const payload = buildPayload(row);
+            const response = await fetch(`${API_BASE_URL}/${API_PATH.playerResults}/create`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(payload),
+            });
 
-        if (!response.ok) {
-            const responseMessage = await response.text();
-            throw new Error(responseMessage || 'Failed to add result');
+            if (!response.ok) {
+                const responseMessage = await response.text();
+                throw new Error(`Row ${index + 1}: ${responseMessage || 'Failed to add result'}`);
+            }
         }
 
         closeModal();
         emit('saved');
     } catch (error) {
-        errorMessage.value = error instanceof Error ? error.message : 'Something went wrong while adding the result.';
+        errorMessage.value = error instanceof Error ? error.message : 'Something went wrong while adding results.';
     } finally {
         isSubmitting.value = false;
     }
@@ -408,23 +536,7 @@ onUnmounted(() => {
     width: 100%;
     border-collapse: collapse;
     table-layout: auto;
-    min-width: 62rem;
-}
-
-.form-table th:nth-child(1),
-.form-table th:nth-child(2),
-.form-table td:nth-child(1),
-.form-table td:nth-child(2) {
-    width: 22%;
-}
-
-.form-table th:nth-child(3),
-.form-table th:nth-child(4),
-.form-table th:nth-child(5),
-.form-table td:nth-child(3),
-.form-table td:nth-child(4),
-.form-table td:nth-child(5) {
-    width: 12%;
+    min-width: 74rem;
 }
 
 .form-table th {
@@ -436,6 +548,7 @@ onUnmounted(() => {
 
 .form-table td {
     padding: 0.25rem 0.4rem;
+    vertical-align: top;
 }
 
 .form-table input[type='text'],
@@ -473,7 +586,7 @@ onUnmounted(() => {
 .checkbox-cell input[type='checkbox'] {
     width: 1rem;
     height: 1rem;
-    margin: 0 auto;
+    margin: 0.4rem auto 0;
     display: block;
 }
 
@@ -482,9 +595,33 @@ onUnmounted(() => {
     cursor: not-allowed;
 }
 
-.helper-text {
-    color: #4b5563;
-    margin: 0 0 1rem;
+.row-action-cell {
+    min-width: 6rem;
+}
+
+.remove-row-button {
+    border: 1px solid #d1d5db;
+    background: #fff;
+    border-radius: 0.45rem;
+    padding: 0.32rem 0.55rem;
+    cursor: pointer;
+}
+
+.remove-row-button:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
+.row-controls {
+    display: flex;
+    justify-content: flex-start;
+    margin-bottom: 0.9rem;
+}
+
+.row-controls button {
+    border-radius: 0.5rem;
+    padding: 0.45rem 0.8rem;
+    cursor: pointer;
 }
 
 .form-error {
@@ -527,7 +664,8 @@ onUnmounted(() => {
     color: #fff;
 }
 
-.primary:disabled {
+.primary:disabled,
+.secondary:disabled {
     opacity: 0.65;
     cursor: not-allowed;
 }
