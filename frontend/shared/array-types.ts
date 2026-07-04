@@ -25,6 +25,7 @@ export interface playerResults {
     isSponsored: boolean;
     isFormComplete: boolean;
     isQualified: boolean;
+    invTakenHere: boolean;
 }
 
 export type IEventSummaryArray = IEventSummary[];

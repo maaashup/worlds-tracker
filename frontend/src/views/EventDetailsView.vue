@@ -29,6 +29,7 @@
                                     <th scope="col">Sponsored</th>
                                     <th scope="col">Form Complete</th>
                                     <th scope="col">Qualified</th>
+                                    <th scope="col">Invite Accepted Here</th>
                                     <th scope="col"></th>
                                     <th scope="col"></th>
                                 </tr>
@@ -41,8 +42,15 @@
                                     <td>{{ player.isSponsored ? 'Yes' : 'No' }}</td>
                                     <td>{{ player.isFormComplete ? 'Yes' : 'No' }}</td>
                                     <td>{{ player.isQualified ? 'Yes' : 'No' }}</td>
-                                    <td><button>Edit</button></td>
-                                    <td><button>Delete</button></td>
+                                    <td>{{ player.invTakenHere ? 'Yes' : 'No' }}</td>
+                                    <td>
+                                        <EditResultButton
+                                            :player="player"
+                                            :formats="eventDetails?.formats ?? []"
+                                            :regionCode="eventDetails?.regionCode ?? ''"
+                                        />
+                                    </td>
+                                    <td><DeleteResultButton :player="player" /></td>
                                 </tr>
                             </tbody>
                         </table>
@@ -59,11 +67,15 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
-
 import { formatDate } from '@/../shared/helperfunctions';
 
-import { API_PATH, API_BASE_URL } from '@/services/api-path';
+
 import AddResultButton from '@/components/eventdetails/AddResultButton.vue';
+import EditResultButton from '@/components/eventdetails/EditResultButton.vue';
+import DeleteResultButton from '@/components/eventdetails/DeleteResultButton.vue';
+
+import { API_PATH, API_BASE_URL } from '@/services/api-path';
+
 import type { IEventDetailsSummary, playerResults } from '../../shared/array-types';
 
 const route = useRoute();
