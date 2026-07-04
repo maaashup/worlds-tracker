@@ -3,8 +3,12 @@
         <div class="top-container">
             <h1> {{ eventDetails?.eventType }} {{ eventDetails?.name }} ({{ eventDetails?.regionCode }})</h1>
             <h4>{{ formatDate(eventDetails?.eventDate as string) }}</h4>
-            <button>Add Event</button>
+            <div class="button-container">
+                <AddResultButton :eventDetails="eventDetails" :existingResults="playerSummary" @saved="loadPlayerResults" />
+            </div>
         </div>
+
+
         <div class="main-container">
             <div class="data-container">
                 <article
@@ -59,14 +63,16 @@ import { useRoute } from 'vue-router';
 import { formatDate } from '@/../shared/helperfunctions';
 
 import { API_PATH, API_BASE_URL } from '@/services/api-path';
+import AddResultButton from '@/components/eventdetails/AddResultButton.vue';
 import type { IEventDetailsSummary, playerResults } from '../../shared/array-types';
 
 const route = useRoute();
 
 const eventId = String(route.params.id ?? '');
+const playerSummary = ref<playerResults[]>([]);
+const eventDetails = ref<IEventDetailsSummary>();
 
-
-onMounted(async () => {
+const loadPlayerResults = async () => {
     try {
         const params = new URLSearchParams({
             eventId,
@@ -77,13 +83,12 @@ onMounted(async () => {
 
         const payload = await response.json();
         playerSummary.value = payload.data ?? [];
-
     } catch (err) {
         console.error('Event fetch failed', err);
     }
-});
+};
 
-onMounted(async () => {
+const loadEventDetails = async () => {
     // Fetch formats for the event
     try {
         const params = new URLSearchParams({
@@ -98,10 +103,16 @@ onMounted(async () => {
     } catch (err) {
         console.error('Formats fetch failed', err);
     }
+};
+
+onMounted(async () => {
+    await Promise.all([
+        loadPlayerResults(),
+        loadEventDetails(),
+    ]);
 });
 
-const playerSummary = ref<playerResults[]>([]);
-const eventDetails = ref<IEventDetailsSummary>();
+
 const playersByFormat = computed<Record<string, playerResults[]>>(() => {
     const grouped: Record<string, playerResults[]> = {};
 
@@ -118,6 +129,14 @@ const playersByFormat = computed<Record<string, playerResults[]>>(() => {
 </script>
 
 <style lang="scss" scoped>
+
+.button-container {
+    display: flex;
+    justify-content: flex-end;
+    position: relative;
+    top: -3rem;
+}
+
 .data-container {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
