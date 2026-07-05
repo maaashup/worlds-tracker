@@ -38,6 +38,10 @@ export async function getDBPlayerResultsForEventSeries(eventSeriesId: string) {
                     .from(playerResults)
                     .innerJoin(eventSeries, eq(playerResults.eventSeriesId, eventSeries.id))
                     .where(eq(eventSeries.id, eventSeriesId));
+    return result;
+}
 
+export async function updateDBPlayerResults(id: string, player: Partial<PlayerResults>) {
+    const [result] = await db.update(playerResults).set(player).where(eq(playerResults.id, id)).returning();
     return result;
 }

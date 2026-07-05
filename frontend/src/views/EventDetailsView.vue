@@ -48,6 +48,7 @@
                                             :player="player"
                                             :formats="eventDetails?.formats ?? []"
                                             :regionCode="eventDetails?.regionCode ?? ''"
+                                            @updated="loadPlayerResults"
                                         />
                                     </td>
                                     <td><DeleteResultButton :player="player" /></td>
@@ -131,7 +132,7 @@ const playersByFormat = computed<Record<string, playerResults[]>>(() => {
     for (const player of playerSummary.value) {
         const formatPlayers = grouped[player.formatCode] ?? [];
         formatPlayers.push(player);
-        grouped[player.formatCode] = formatPlayers;
+        grouped[player.formatCode] = formatPlayers.sort((left, right) => left.rank - right.rank);
     }
 
     return grouped;

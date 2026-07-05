@@ -62,6 +62,8 @@
 
 <script lang="ts" setup>
 import { computed, onMounted, onUnmounted, ref } from 'vue';
+
+import { API_BASE_URL, API_PATH } from '@/services/api-path';
 import type { playerResults } from '../../../shared/array-types';
 
 type EditFormModel = {
@@ -84,7 +86,7 @@ const props = defineProps<{
 }>();
 
 const emit = defineEmits<{
-    (event: 'save', payload: EditFormModel): void;
+    (event: 'updated'): void;
 }>();
 
 const isOpen = ref(false);
@@ -133,12 +135,51 @@ const closeModal = () => {
     isOpen.value = false;
 };
 
-const save = () => {
-    emit('save', { ...form.value });
+const save = async () => {
+
+    const updatedPlayer: EditFormModel = {
+        id: form.value.id,
+        bushiNaviId: form.value.bushiNaviId,
+        playerName: form.value.playerName,
+        formatCode: form.value.formatCode,
+        rank: form.value.rank,
+        isSponsored: form.value.isSponsored,
+        isFormComplete: form.value.isFormComplete,
+        isQualified: form.value.isQualified,
+        invTakenHere: form.value.invTakenHere,
+        regionCode: form.value.regionCode,
+    };
+
+
+    try {
+        const updatedPlayerResults = await fetch(`${API_BASE_URL}/${API_PATH.playerResults}/update/${updatedPlayer.id}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(updatedPlayer),
+        });
+
+        if (!updatedPlayerResults.ok) {
+            throw new Error(await updatedPlayerResults.text());
+        }
+
+        emit('updated');
+    } catch (error) {
+        console.error('Error updating player results:', error);
+        return;
+    }
+    
     closeModal();
 };
 
 const onKeyDown = (event: KeyboardEvent) => {
+    if (event.key === 'Enter' && isOpen.value) {
+        event.preventDefault();
+        event.stopPropagation();
+        return;
+    }
+
     if (event.key === 'Escape' && isOpen.value) {
         closeModal();
     }

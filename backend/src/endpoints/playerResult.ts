@@ -3,7 +3,7 @@ import { Request, Response } from "express";
 import { respondWithJSON } from "../helperfunctions/respondWithJSON.js";
 import { BadRequestError, NotFoundError } from "../middleware/middlewareLogging.js";
 
-import { addDBPlayerResults, getDBPlayerResults, getDBPlayerResultsById, getDBPlayerResultsByNaviId, getDBPlayerResultsForEventSeries } from "../db/query/playerResult.js";
+import { addDBPlayerResults, getDBPlayerResults, getDBPlayerResultsById, getDBPlayerResultsByNaviId, getDBPlayerResultsForEventSeries, updateDBPlayerResults } from "../db/query/playerResult.js";
 import { getDBFormatByCode } from "../db/query/format.js";
 import { getDBAllEventSeriesByTLYear, getDBEventSeriesByName } from "../db/query/eventSeries.js";
 import { getDBEventTypeByCode } from "../db/query/eventType.js";
@@ -142,4 +142,41 @@ export async function getAllPlayerResultsByEventId(req: Request, res: Response):
 
     respondWithJSON(res, 200, {data: playerResults});
 
+}
+
+export async function updatePlayerResults(req: Request, res: Response): Promise<void> {
+    const id = req.params.id as string;
+    const { bushiNaviId, playerName, formatCode, rank, isSponsored, isFormComplete, invTakenHere, isQualified } = req.body;
+
+    const updateData: Partial<{
+        bushiNaviId: string;
+        playerName: string;
+        formatCode: string;
+        rank: number;
+        isSponsored: boolean;
+        isFormComplete: boolean;
+        invTakenHere: boolean;
+        isQualified: boolean;
+    }> = {};
+
+    const getOrginalData = await getDBPlayerResultsById(id);
+    if (!getOrginalData) {
+        throw new NotFoundError("Player result not found");
+    }
+    
+    if (getOrginalData.bushiNaviId !== bushiNaviId) updateData.bushiNaviId = bushiNaviId;
+    if (getOrginalData.playerName !== playerName) updateData.playerName = playerName;
+    if (getOrginalData.formatCode !== formatCode) updateData.formatCode = formatCode;
+    if (getOrginalData.rank !== rank) updateData.rank = rank;
+    if (getOrginalData.isSponsored !== isSponsored) updateData.isSponsored = isSponsored;
+    if (getOrginalData.isFormComplete !== isFormComplete) updateData.isFormComplete = isFormComplete;
+    if (getOrginalData.invTakenHere !== invTakenHere) updateData.invTakenHere = invTakenHere;
+    if (getOrginalData.isQualified !== isQualified) updateData.isQualified = isQualified;
+
+    const updatedPlayerResults = await updateDBPlayerResults(id, updateData);
+    if (!updatedPlayerResults) {
+        throw new NotFoundError("Failed to update player results");
+    }
+
+    respondWithJSON(res, 200, {data: updatedPlayerResults});
 }
