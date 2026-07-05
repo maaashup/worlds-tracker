@@ -25,6 +25,7 @@
                                 <tr>
                                     <th scope="col">Bushi Navi ID</th>
                                     <th scope="col">Player Name</th>
+                                    <th scope="col">Decklog</th>
                                     <th scope="col">Rank</th>
                                     <th scope="col">Sponsored</th>
                                     <th scope="col">Form Complete</th>
@@ -38,6 +39,15 @@
                                 <tr v-for="player in playersByFormat[format]" :key="player.id">
                                     <td>{{ player.bushiNaviId }}</td>
                                     <td>{{ player.playerName }}</td>
+                                    <td>
+                                        <a
+                                            v-if="player.decklog"
+                                            :href="getDecklogUrl(player.decklog)"
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                        >{{ player.decklog }}</a>
+                                        <span v-else>N/A</span>
+                                    </td>
                                     <td>{{ player.rank }}</td>
                                     <td>{{ player.isSponsored ? 'Yes' : 'No' }}</td>
                                     <td>{{ player.isFormComplete ? 'Yes' : 'No' }}</td>
@@ -51,7 +61,7 @@
                                             @updated="loadPlayerResults"
                                         />
                                     </td>
-                                    <td><DeleteResultButton :player="player" /></td>
+                                    <td><DeleteResultButton :player="player" @deleted="loadPlayerResults" /></td>
                                 </tr>
                             </tbody>
                         </table>
@@ -78,6 +88,8 @@ import DeleteResultButton from '@/components/eventdetails/DeleteResultButton.vue
 import { API_PATH, API_BASE_URL } from '@/services/api-path';
 
 import type { IEventDetailsSummary, playerResults } from '../../shared/array-types';
+
+const DECKLOG_BASE_URL = 'https://decklog-en.bushiroad.com/view/';
 
 const route = useRoute();
 
@@ -125,6 +137,13 @@ onMounted(async () => {
     ]);
 });
 
+const getDecklogUrl = (decklog: string | null) => {
+    if (!decklog) {
+        return '';
+    }
+
+    return `${DECKLOG_BASE_URL}${decklog}`;
+};
 
 const playersByFormat = computed<Record<string, playerResults[]>>(() => {
     const grouped: Record<string, playerResults[]> = {};

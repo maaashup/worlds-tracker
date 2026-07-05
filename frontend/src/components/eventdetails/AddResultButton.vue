@@ -14,14 +14,15 @@
                             <tr>
                                 <th scope="col">Bushi Navi ID:</th>
                                 <th scope="col">Player Name:</th>
+                                <th scope="col">Decklog:</th>
                                 <th scope="col">Format:</th>
                                 <th scope="col">Region:</th>
                                 <th scope="col">Rank:</th>
-                                <th scope="col">Sponsored:</th>
-                                <th scope="col">Form Complete:</th>
-                                <th scope="col">Qualified:</th>
-                                <th scope="col">Invite Accepted Here:</th>
-                                <th scope="col">Actions:</th>
+                                <th scope="col" class="center-column">Sponsored:</th>
+                                <th scope="col" class="center-column">Form Complete:</th>
+                                <th scope="col" class="center-column">Qualified:</th>
+                                <th scope="col" class="center-column">Invite Accepted Here:</th>
+                                <th scope="col" class="center-column">Actions:</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -46,6 +47,15 @@
                                     />
                                     <p v-if="rowErrors[index]?.playerName" class="field-error">{{ rowErrors[index]?.playerName }}</p>
                                 </td>
+
+                                <td>
+                                    <input
+                                        type="text"
+                                        v-model="row.decklog"
+                                        placeholder="Decklog code"
+                                    />
+                                </td>
+                                
                                 <td>
                                     <select
                                         v-model="row.formatCode"
@@ -87,7 +97,7 @@
                                     </select>
                                     <p v-if="rowErrors[index]?.rank" class="field-error">{{ rowErrors[index]?.rank }}</p>
                                 </td>
-                                <td class="checkbox-cell">
+                                <td class="checkbox-cell center-column">
                                     <input
                                         type="checkbox"
                                         v-model="row.isSponsored"
@@ -95,10 +105,10 @@
                                         :aria-disabled="row.rank !== '1'"
                                     />
                                 </td>
-                                <td class="checkbox-cell"><input type="checkbox" v-model="row.isFormComplete" /></td>
-                                <td class="checkbox-cell"><input type="checkbox" v-model="row.isQualified" /></td>
-                                <td class="checkbox-cell"><input type="checkbox" v-model="row.invTakenHere" /></td>
-                                <td class="checkbox-cell row-action-cell">
+                                <td class="checkbox-cell center-column"><input type="checkbox" v-model="row.isFormComplete" /></td>
+                                <td class="checkbox-cell center-column"><input type="checkbox" v-model="row.isQualified" /></td>
+                                <td class="checkbox-cell center-column"><input type="checkbox" v-model="row.invTakenHere" /></td>
+                                <td class="checkbox-cell row-action-cell center-column">
                                     <button type="button" class="remove-row-button" :disabled="rows.length === 1" @click="removeRow(index)">
                                         Remove
                                     </button>
@@ -136,6 +146,7 @@ type RowModel = {
     id: number;
     bushiNaviId: string;
     playerName: string;
+    decklog: string;
     formatCode: string;
     rank: string;
     isSponsored: boolean;
@@ -154,6 +165,7 @@ type RowErrors = {
 type CreateResultPayload = {
     bushiNaviId: string;
     playerName: string;
+    decklog: string;
     formatCode: string;
     rank: number;
     isSponsored: boolean;
@@ -188,6 +200,7 @@ const createEmptyRow = (): RowModel => {
         id: nextRowId.value,
         bushiNaviId: '',
         playerName: '',
+        decklog: '',
         formatCode: '',
         rank: '1',
         isSponsored: false,
@@ -409,6 +422,7 @@ const buildPayload = (row: RowModel): CreateResultPayload => {
     return {
         bushiNaviId: row.bushiNaviId.trim(),
         playerName: row.playerName.trim(),
+        decklog: row.decklog.trim(),
         formatCode: row.formatCode,
         rank: Number(row.rank),
         isSponsored: row.isSponsored,
@@ -507,7 +521,7 @@ onUnmounted(() => {
 }
 
 .modal-card {
-    width: min(96vw, 84rem);
+    width: min(99vw, 104rem);
     background: #fff;
     border-radius: 0.75rem;
     border: 1px solid #e5e7eb;
@@ -581,6 +595,16 @@ onUnmounted(() => {
 
 .checkbox-cell {
     text-align: center;
+}
+
+.center-column {
+    text-align: center;
+}
+
+.row-action-cell.center-column {
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .checkbox-cell input[type='checkbox'] {

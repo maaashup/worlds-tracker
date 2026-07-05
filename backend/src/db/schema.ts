@@ -68,6 +68,7 @@ export const playerResults = pgTable("playerResults", {
   id: uuid("id").primaryKey().defaultRandom(),
   bushiNaviId: text("bushi_navi_id").notNull(),
   playerName: text("player_name").notNull(),
+  decklog: text("decklog"),
   formatCode: text("format_code")
     .notNull()
     .references(() => format.code, { onDelete: "cascade" }),

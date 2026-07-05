@@ -26,6 +26,7 @@ export interface playerResults {
     isFormComplete: boolean;
     isQualified: boolean;
     invTakenHere: boolean;
+    decklog: string | null;
 }
 
 export type IEventSummaryArray = IEventSummary[];

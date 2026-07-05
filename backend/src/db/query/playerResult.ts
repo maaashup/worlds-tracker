@@ -29,6 +29,7 @@ export async function getDBPlayerResultsForEventSeries(eventSeriesId: string) {
                                     bushiNaviId: playerResults.bushiNaviId,
                                     playerName: playerResults.playerName,
                                     formatCode: playerResults.formatCode,
+                                    decklog: playerResults.decklog,
                                     rank: playerResults.rank,
                                     isSponsored: playerResults.isSponsored,
                                     isFormComplete: playerResults.isFormComplete,
@@ -43,5 +44,10 @@ export async function getDBPlayerResultsForEventSeries(eventSeriesId: string) {
 
 export async function updateDBPlayerResults(id: string, player: Partial<PlayerResults>) {
     const [result] = await db.update(playerResults).set(player).where(eq(playerResults.id, id)).returning();
+    return result;
+}
+
+export async function deleteDBPlayerResults(id: string) {
+    const [result] = await db.delete(playerResults).where(eq(playerResults.id, id)).returning();
     return result;
 }

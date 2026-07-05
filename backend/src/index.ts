@@ -13,7 +13,7 @@ import { createEventTimeline, getAllEventTimelines, getEventTimelineByID, getEve
 import { createEventType, getAllEventTypes, getEventTypeByCode } from "./endpoints/eventType.js";
 import { createEventSeries, getAllEventSeries, getAllEventSeriesForTimelineYear, getEventSummary } from "./endpoints/eventSeries.js";
 import { createFormat, getFormatByCode, getFormatById, getFormats } from "./endpoints/format.js";
-import { createPlayerResult, getAllPlayerResultsByEventId, getAllPlayerResultsByTimeline, getPlayerResults, getPlayerResultsById, getPlayerResultsByNaviId, updatePlayerResults } from "./endpoints/playerResult.js";
+import { createPlayerResult, deletePlayerResults, getAllPlayerResultsByEventId, getAllPlayerResultsByTimeline, getPlayerResults, getPlayerResultsById, getPlayerResultsByNaviId, updatePlayerResults } from "./endpoints/playerResult.js";
 import { createRegion, getRegionByCode, getRegions } from "./endpoints/region.js";
 
 const env = process.env;
@@ -63,6 +63,7 @@ app.get("/api/player-result/navi-id/:naviId", getPlayerResultsByNaviId);
 app.get("/api/player-result/timelinesummary", getAllPlayerResultsByTimeline);
 app.get("/api/player-result/results", getAllPlayerResultsByEventId);
 app.put("/api/player-result/update/:id", updatePlayerResults);
+app.delete("/api/player-result/delete/:id", deletePlayerResults);
 
 //Helper Endpoints:
 app.post("/api/event-type/create", createEventType);

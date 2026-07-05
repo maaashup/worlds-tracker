@@ -14,19 +14,21 @@
                             <tr>
                                 <th scope="col">Bushi Navi ID:</th>
                                 <th scope="col">Player Name:</th>
+                                <th scope="col">Decklog:</th>
                                 <th scope="col">Format:</th>
                                 <th scope="col">Region:</th>
                                 <th scope="col">Rank:</th>
-                                <th scope="col">Sponsored:</th>
-                                <th scope="col">Form Complete:</th>
-                                <th scope="col">Qualified:</th>
-                                <th scope="col">Invite Accepted Here:</th>
+                                <th scope="col" class="center-column">Sponsored:</th>
+                                <th scope="col" class="center-column">Form Complete:</th>
+                                <th scope="col" class="center-column">Qualified:</th>
+                                <th scope="col" class="center-column">Invite Accepted Here:</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr>
                                 <td><input type="text" v-model="form.bushiNaviId" /></td>
                                 <td><input type="text" v-model="form.playerName" /></td>
+                                <td><input type="text" v-model="form.decklog" placeholder="Decklog code" /></td>
                                 <td>
                                     <select v-model="form.formatCode">
                                         <option value="" disabled>Select format</option>
@@ -42,10 +44,10 @@
                                         <option :value="4">4</option>
                                     </select>
                                 </td>
-                                <td class="checkbox-cell"><input type="checkbox" v-model="form.isSponsored" /></td>
-                                <td class="checkbox-cell"><input type="checkbox" v-model="form.isFormComplete" /></td>
-                                <td class="checkbox-cell"><input type="checkbox" v-model="form.isQualified" /></td>
-                                <td class="checkbox-cell"><input type="checkbox" v-model="form.invTakenHere" /></td>
+                                <td class="checkbox-cell center-column"><input type="checkbox" v-model="form.isSponsored" /></td>
+                                <td class="checkbox-cell center-column"><input type="checkbox" v-model="form.isFormComplete" /></td>
+                                <td class="checkbox-cell center-column"><input type="checkbox" v-model="form.isQualified" /></td>
+                                <td class="checkbox-cell center-column"><input type="checkbox" v-model="form.invTakenHere" /></td>
                             </tr>
                         </tbody>
                     </table>
@@ -70,6 +72,7 @@ type EditFormModel = {
     id: string;
     bushiNaviId: string;
     playerName: string;
+    decklog: string;
     formatCode: string;
     rank: number;
     isSponsored: boolean;
@@ -94,6 +97,7 @@ const form = ref<EditFormModel>({
     id: '',
     bushiNaviId: '',
     playerName: '',
+    decklog: '',
     formatCode: '',
     rank: 1,
     isSponsored: false,
@@ -116,6 +120,7 @@ const buildFormFromPlayer = (): EditFormModel => {
         id: props.player.id,
         bushiNaviId: props.player.bushiNaviId,
         playerName: props.player.playerName,
+        decklog: props.player.decklog ?? '',
         formatCode: props.player.formatCode,
         rank: props.player.rank,
         isSponsored: props.player.isSponsored,
@@ -141,6 +146,7 @@ const save = async () => {
         id: form.value.id,
         bushiNaviId: form.value.bushiNaviId,
         playerName: form.value.playerName,
+        decklog: form.value.decklog,
         formatCode: form.value.formatCode,
         rank: form.value.rank,
         isSponsored: form.value.isSponsored,
@@ -215,7 +221,7 @@ onUnmounted(() => {
 }
 
 .modal-card {
-    width: min(96vw, 84rem);
+    width: min(98vw, 92rem);
     background: #fff;
     border-radius: 0.75rem;
     border: 1px solid #e5e7eb;
@@ -283,6 +289,10 @@ onUnmounted(() => {
 }
 
 .checkbox-cell {
+    text-align: center;
+}
+
+.center-column {
     text-align: center;
 }
 

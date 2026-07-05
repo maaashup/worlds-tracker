@@ -3,7 +3,7 @@ import { Request, Response } from "express";
 import { respondWithJSON } from "../helperfunctions/respondWithJSON.js";
 import { BadRequestError, NotFoundError } from "../middleware/middlewareLogging.js";
 
-import { addDBPlayerResults, getDBPlayerResults, getDBPlayerResultsById, getDBPlayerResultsByNaviId, getDBPlayerResultsForEventSeries, updateDBPlayerResults } from "../db/query/playerResult.js";
+import { addDBPlayerResults, deleteDBPlayerResults, getDBPlayerResults, getDBPlayerResultsById, getDBPlayerResultsByNaviId, getDBPlayerResultsForEventSeries, updateDBPlayerResults } from "../db/query/playerResult.js";
 import { getDBFormatByCode } from "../db/query/format.js";
 import { getDBAllEventSeriesByTLYear, getDBEventSeriesByName } from "../db/query/eventSeries.js";
 import { getDBEventTypeByCode } from "../db/query/eventType.js";
@@ -12,7 +12,7 @@ import { getDBEventTimelineByEventYear } from "../db/query/eventTimeline.js";
 
 export async function createPlayerResult(req: Request, res: Response): Promise<void> {
     
-    const { bushiNaviId, playerName, formatCode, rank, isSponsored, isFormComplete, invTakenHere, isQualified, eventSeries, eventType, eventTimelineYear, regionCode } = req.body;
+    const { bushiNaviId, playerName, formatCode, rank, isSponsored, isFormComplete, invTakenHere, isQualified, eventSeries, eventType, eventTimelineYear, regionCode, decklog } = req.body;
 
     if (!bushiNaviId || !playerName || !formatCode || !rank || isSponsored === undefined || isFormComplete === undefined || invTakenHere === undefined || isQualified === undefined || !eventSeries || !eventType || !eventTimelineYear || !regionCode) {
         throw new BadRequestError("Missing required fields");
@@ -52,6 +52,7 @@ export async function createPlayerResult(req: Request, res: Response): Promise<v
         playerName: playerName,
         formatCode: checkFormat.code,
         rank: rank,
+        decklog: decklog ?? null,
         isSponsored: isSponsored,
         isFormComplete: isFormComplete,
         invTakenHere: invTakenHere,
@@ -146,7 +147,7 @@ export async function getAllPlayerResultsByEventId(req: Request, res: Response):
 
 export async function updatePlayerResults(req: Request, res: Response): Promise<void> {
     const id = req.params.id as string;
-    const { bushiNaviId, playerName, formatCode, rank, isSponsored, isFormComplete, invTakenHere, isQualified } = req.body;
+    const { bushiNaviId, playerName, formatCode, rank, isSponsored, isFormComplete, invTakenHere, isQualified, decklog } = req.body;
 
     const updateData: Partial<{
         bushiNaviId: string;
@@ -157,6 +158,7 @@ export async function updatePlayerResults(req: Request, res: Response): Promise<
         isFormComplete: boolean;
         invTakenHere: boolean;
         isQualified: boolean;
+        decklog: string;
     }> = {};
 
     const getOrginalData = await getDBPlayerResultsById(id);
@@ -172,6 +174,7 @@ export async function updatePlayerResults(req: Request, res: Response): Promise<
     if (getOrginalData.isFormComplete !== isFormComplete) updateData.isFormComplete = isFormComplete;
     if (getOrginalData.invTakenHere !== invTakenHere) updateData.invTakenHere = invTakenHere;
     if (getOrginalData.isQualified !== isQualified) updateData.isQualified = isQualified;
+    if (getOrginalData.decklog !== decklog) updateData.decklog = decklog;
 
     const updatedPlayerResults = await updateDBPlayerResults(id, updateData);
     if (!updatedPlayerResults) {
@@ -179,4 +182,20 @@ export async function updatePlayerResults(req: Request, res: Response): Promise<
     }
 
     respondWithJSON(res, 200, {data: updatedPlayerResults});
+}
+
+export async function deletePlayerResults(req: Request, res: Response): Promise<void> {
+    const id = req.params.id as string;
+
+    const existingPlayerResults = await getDBPlayerResultsById(id);
+    if (!existingPlayerResults) {
+        throw new NotFoundError("Player result not found");
+    }
+
+    const deletedPlayerResult = await deleteDBPlayerResults(id);
+    if (!deletedPlayerResult) {
+        throw new NotFoundError("Failed to delete player result");
+    }
+
+    respondWithJSON(res, 200, { data: deletedPlayerResult });
 }
