@@ -1,0 +1,34 @@
+{
+  "name": "Monorepo Template",
+  "dockerComposeFile": "../docker-compose.yml",
+  "service": "devcontainer",
+  "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
+  "features": {
+    "ghcr.io/devcontainers/features/node:2": {
+      "version": "24",
+      "npmVersion": "v11.16.0"
+    },
+    "ghcr.io/nlstn/devcontainer-features/psql:1": {}
+  },
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "terminal.integrated.defaultProfile.linux": "bash"
+      },
+      "extensions": [
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "vue.volar",
+        "ckreider.vscode-postgres"
+      ]
+    }
+  },
+  "forwardPorts": [
+    5432,
+    3000,
+    5173
+  ],
+  "overrideCommand": true,
+  "remoteUser": "vscode",
+  "runServices": ["db", "devcontainer"]
+}

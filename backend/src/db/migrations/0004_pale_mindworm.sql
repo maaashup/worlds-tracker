@@ -1,1 +1,0 @@
-ALTER TABLE "eventSeries" ADD COLUMN "name" text NOT NULL;

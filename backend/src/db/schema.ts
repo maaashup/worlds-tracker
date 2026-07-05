@@ -6,6 +6,7 @@ import {
   boolean,
   integer,
   date,
+  serial,
 } from "drizzle-orm/pg-core"
 
 const createdAt = timestamp("created_at", { withTimezone: true })
@@ -35,11 +36,14 @@ export const eventSeries = pgTable("eventSeries", {
   eventTypeId: uuid("event_type_id")
     .notNull()
     .references(() => eventType.id, { onDelete: "cascade" }),
-  region: text("event_region").notNull(),
+  regionCode: text("region_code")
+    .notNull()
+    .references(() => regions.code, { onDelete: "cascade" }),
   date: date("event_date").notNull(),
   eventTimelineId: uuid("event_timeline_id")
     .notNull()
     .references(() => eventTimeline.id, { onDelete: "cascade" }),
+  formats: text("formats").array().notNull().default(['D', 'WS', 'SVE']),
   createdAt,
   updatedAt,
 });
@@ -51,7 +55,8 @@ export type EventSeries = typeof eventSeries.$inferInsert
 export const format = pgTable("format", {
   id: uuid("id").primaryKey().defaultRandom(),
   name: text("name").notNull(),
-  active: boolean("active").notNull(),
+  code: text("code").notNull().unique(),
+  isActive: boolean("is_active").notNull(),
   createdAt,
   updatedAt,
 });
@@ -63,16 +68,24 @@ export const playerResults = pgTable("playerResults", {
   id: uuid("id").primaryKey().defaultRandom(),
   bushiNaviId: text("bushi_navi_id").notNull(),
   playerName: text("player_name").notNull(),
-  formatId: uuid("format_id")
+  decklog: text("decklog"),
+  formatCode: text("format_code")
     .notNull()
-    .references(() => format.id, { onDelete: "cascade" }),
+    .references(() => format.code, { onDelete: "cascade" }),
   rank: integer("rank").notNull(),
   isSponsored: boolean("is_sponsored").notNull(),
   isFormComplete: boolean("is_form_complete").notNull(),
   invTakenHere: boolean("inv_taken_here").notNull(),
+  isQualified: boolean("is_qualified").notNull(),
+  eventTypeId: uuid("event_type_id")
+    .notNull()
+    .references(() => eventType.id, { onDelete: "cascade" }),
   eventSeriesId: uuid("event_series_id")
     .notNull()
     .references(() => eventSeries.id, { onDelete: "cascade" }),
+  regionCode: text("region_code")
+    .notNull()
+    .references(() => regions.code, { onDelete: "cascade" }),
   createdAt,
   updatedAt,
 });
@@ -91,3 +104,16 @@ export const eventType = pgTable("eventType", {
 });
 
 export type EventType = typeof eventType.$inferInsert
+
+//region Table: Lists all the legal regions
+
+export const regions = pgTable("regions", {
+  id: serial("id").primaryKey(),
+  code: text("code").notNull().unique(),
+  fullRegionName: text("full_region_name").notNull(),
+  isActive: boolean("is_active").notNull(),
+  createdAt,
+  updatedAt,
+});
+
+export type Regions = typeof regions.$inferInsert
