@@ -1,12 +1,13 @@
 <script setup lang="ts">
+import TournamentTimeline from '@/components/tournament-timeline/TournamentTimeline.vue';
 
 </script>
 
 <template>
   <main>
     <div>
-      <h1>Home Page</h1>
-      <p>This is the home page</p>
+      <h1>Home Dashboard</h1>
+      <TournamentTimeline />
     </div>
   </main>
 </template>

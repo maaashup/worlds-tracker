@@ -52,9 +52,17 @@ export async function getAllEventSeries(req: Request, res: Response): Promise<vo
 }
 
 export async function getAllEventSeriesForTimelineYear(req: Request, res: Response) {
-    const { eventTimelineId } = req.body;
+    const eventTimelineYear = req.params.id as string;
+    if (!eventTimelineYear) {
+        throw new BadRequestError("Missing required field: eventTimelineYear");
+    }
 
-    const response = await getDBAllEventSeriesByTLYear(eventTimelineId);
+    const eventTimelineData = await getDBEventTimelineByEventYear(eventTimelineYear);
+    if (!eventTimelineData) {
+        throw new NotFoundError("No event timeline found for the given year");
+    }
+
+    const response = await getDBAllEventSeriesByTLYear(eventTimelineData.id);
 
     return respondWithJSON(res, 200, response);
 }
