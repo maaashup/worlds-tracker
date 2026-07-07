@@ -16,6 +16,7 @@ const dbConfig: DBConfig = {
 //This is the config loader that will be used throughout the API and can be expanded upon when needed.
 export const config = {
     db: dbConfig,
+    secretKey: envOrThrow("JWT_KEY"),
 };
 
 

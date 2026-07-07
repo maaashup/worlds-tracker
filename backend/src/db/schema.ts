@@ -16,6 +16,8 @@ const updatedAt = timestamp("updated_at", { withTimezone: true })
   .notNull()
   .defaultNow()
   .$onUpdate(() => new Date())
+const createdBy = text("created_by").notNull().default("system")
+const updatedBy = text("updated_by").notNull().default("system")
   
 // eventTimeline Table: Represents a timeline of events, such as a tournament series or season. It includes fields for the event year, start and end dates, and timestamps for creation and updates.
 export const eventTimeline = pgTable("eventTimeline", {
@@ -25,6 +27,8 @@ export const eventTimeline = pgTable("eventTimeline", {
   endDate: date("end_date").notNull(),
   createdAt,
   updatedAt,
+  createdBy,
+  updatedBy,
 });
 
 export type NewEventTimeline = typeof eventTimeline.$inferInsert
@@ -46,6 +50,8 @@ export const eventSeries = pgTable("eventSeries", {
   formats: text("formats").array().notNull().default(['D', 'WS', 'SVE']),
   createdAt,
   updatedAt,
+  createdBy,
+  updatedBy,
 });
 
 export type EventSeries = typeof eventSeries.$inferInsert
@@ -59,6 +65,8 @@ export const format = pgTable("format", {
   isActive: boolean("is_active").notNull(),
   createdAt,
   updatedAt,
+  createdBy,
+  updatedBy,
 });
 
 export type Format = typeof format.$inferInsert
@@ -88,6 +96,8 @@ export const playerResults = pgTable("playerResults", {
     .references(() => regions.code, { onDelete: "cascade" }),
   createdAt,
   updatedAt,
+  createdBy,
+  updatedBy,
 });
 
 export type PlayerResults = typeof playerResults.$inferInsert
@@ -101,6 +111,8 @@ export const eventType = pgTable("eventType", {
   isActive: boolean("is_active").notNull(),
   createdAt,
   updatedAt,
+  createdBy,
+  updatedBy,
 });
 
 export type EventType = typeof eventType.$inferInsert
@@ -114,6 +126,37 @@ export const regions = pgTable("regions", {
   isActive: boolean("is_active").notNull(),
   createdAt,
   updatedAt,
+  createdBy,
+  updatedBy,
 });
 
 export type Regions = typeof regions.$inferInsert
+
+export const users = pgTable("users", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  username: text("username").notNull().unique(),
+  passwordHash: text("password_hash").notNull(),
+  firstLogin: boolean("first_login").notNull().default(true),
+  isAdmin: boolean("is_admin").notNull().default(false),
+  createdAt,
+  updatedAt,
+  createdBy,
+  updatedBy,
+});
+
+export type Users = typeof users.$inferInsert
+
+export const refreshTokens = pgTable("refresh_tokens", {
+  token: text("token").primaryKey().notNull(),
+  userId: uuid("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  expiresAt: timestamp("expires_at").notNull(),
+  revokedAt: timestamp("revoked_at"),
+  createdAt,
+  updatedAt,
+  createdBy,
+  updatedBy,
+});
+
+export type RefreshTokens = typeof refreshTokens.$inferInsert

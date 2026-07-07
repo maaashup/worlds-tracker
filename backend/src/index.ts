@@ -15,6 +15,8 @@ import { createEventSeries, getAllEventSeries, getAllEventSeriesForTimelineYear,
 import { createFormat, getFormatByCode, getFormatById, getFormats } from "./endpoints/format.js";
 import { createPlayerResult, deletePlayerResults, getAllPlayerResultsByEventId, getAllPlayerResultsByTimeline, getPlayerResults, getPlayerResultsById, getPlayerResultsByNaviId, updatePlayerResults } from "./endpoints/playerResult.js";
 import { createRegion, getRegionByCode, getRegions } from "./endpoints/region.js";
+import { createUser, LoginUser, updateUserPassword } from "./endpoints/users.js";
+import { refreshToken, revokeToken } from "./endpoints/tokens.js";
 
 const env = process.env;
 const PORT = env.API_PORT || 3000;
@@ -42,6 +44,16 @@ app.get("/api/health", (req: Request, res: Response) => {
 });
 
 //Main Backend Endpoints:
+
+//User Endpoints:
+app.post("/api/users/create", createUser);
+app.post("/api/users/login", LoginUser);
+app.put("/api/users/update", updateUserPassword);
+
+//Token Endpoints:
+app.post("/api/tokens/refresh", refreshToken);
+app.post("/api/tokens/revoke", revokeToken);
+
 
 // Event Timeline Endpoints:
 app.post("/api/event-timeline/create", createEventTimeline);
@@ -110,4 +122,20 @@ async function runMigrations() {
     await new Promise(res => setTimeout(res, 5000));
     return runMigrations(); // Recursive retry
   }
+}
+
+function getPgErrorCode(error: unknown): string | undefined {
+  if (typeof error !== "object" || error === null) {
+    return undefined;
+  }
+
+  if ("code" in error && typeof error.code === "string") {
+    return error.code;
+  }
+
+  if ("cause" in error && typeof error.cause === "object" && error.cause !== null && "code" in error.cause && typeof error.cause.code === "string") {
+    return error.cause.code;
+  }
+
+  return undefined;
 }
