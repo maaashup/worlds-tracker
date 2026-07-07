@@ -15,7 +15,7 @@ import { createEventSeries, getAllEventSeries, getAllEventSeriesForTimelineYear,
 import { createFormat, getFormatByCode, getFormatById, getFormats } from "./endpoints/format.js";
 import { createPlayerResult, deletePlayerResults, getAllPlayerResultsByEventId, getAllPlayerResultsByTimeline, getPlayerResults, getPlayerResultsById, getPlayerResultsByNaviId, updatePlayerResults } from "./endpoints/playerResult.js";
 import { createRegion, getRegionByCode, getRegions } from "./endpoints/region.js";
-import { createUser, LoginUser, updateUserPassword } from "./endpoints/users.js";
+import { createUser, LoginUser, updateUserPassword, logoutUser } from "./endpoints/users.js";
 import { refreshToken, revokeToken } from "./endpoints/tokens.js";
 
 const env = process.env;
@@ -49,6 +49,7 @@ app.get("/api/health", (req: Request, res: Response) => {
 app.post("/api/users/create", createUser);
 app.post("/api/users/login", LoginUser);
 app.put("/api/users/update", updateUserPassword);
+app.post("/api/users/logout", logoutUser);
 
 //Token Endpoints:
 app.post("/api/tokens/refresh", refreshToken);

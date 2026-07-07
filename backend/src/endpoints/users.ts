@@ -4,7 +4,8 @@ import { respondWithJSON } from "../helperfunctions/respondWithJSON.js";
 import {createDBUser, getDBUserByUsername, updateDBUser} from "../db/query/users.js";
 import { getBearerToken, hashPassword, makeJWT, makeRefreshToken, validateJWT, verifyPassword } from "../helperfunctions/auth.js";
 import { config } from "../config.js";
-import { createDBRefreshToken } from "../db/query/refreshTokens.js";
+import { createDBRefreshToken, getDBRefreshTokenByToken } from "../db/query/refreshTokens.js";
+import { revokeDBRefreshToken } from "../db/query/refreshTokens.js";
 
 export async function createUser(req: Request, res: Response): Promise<void> {
   const { username, password } = req.body;
@@ -115,4 +116,18 @@ export async function updateUserPassword(req: Request, res: Response): Promise<v
 
     });
 
+}
+
+export async function logoutUser(req: Request, res: Response): Promise<void> {
+  const refreshToken = getBearerToken(req);
+  const storedRefreshToken = await getDBRefreshTokenByToken(refreshToken);
+  const currentDate = new Date();
+
+  if (!storedRefreshToken || currentDate > storedRefreshToken.expiresAt || !!storedRefreshToken.revokedAt) {
+    throw new UnauthorisedError("Invalid refresh token");
+  }
+
+  await revokeDBRefreshToken(refreshToken, currentDate);
+
+  respondWithJSON(res, 204, {});
 }
