@@ -1,6 +1,6 @@
 import { Router } from "express";
 
-import { createUser, LoginUser, logoutUser, updateUserPassword } from "../endpoints/users.js";
+import { createUser, getCurrentUser, LoginUser, logoutUser, updateUserPassword } from "../endpoints/users.js";
 import { middlewareIsLoggedIn } from "../middleware/middlewareIsLoggedIn.js";
 import { middlewareIsValidRefreshToken } from "../middleware/middlewareIsValidRefreshToken.js";
 import { middlewareRequireAdmin } from "../middleware/middlewareRequireAdmin.js";
@@ -14,3 +14,4 @@ usersRoutes.use(middlewareIsLoggedIn);
 
 usersRoutes.post("/create", middlewareRequireAdmin, createUser);
 usersRoutes.put("/update", updateUserPassword);
+usersRoutes.get("/current", getCurrentUser);

@@ -14,7 +14,9 @@ export async function createEventType(req: Request, res: Response): Promise<void
         throw new BadRequestError("Missing one of the required fields: code, fullName, isActive");
     }
 
-    const addEventType = await addDBEventType({ code, fullName, isActive });
+    const username = req.user?.username || "System";
+
+    const addEventType = await addDBEventType({ code, fullName, isActive, createdBy: username, updatedBy: username });
     if (!addEventType) {
         throw new BadRequestError("Failed to create event type");
     }

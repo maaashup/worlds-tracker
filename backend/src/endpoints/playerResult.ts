@@ -46,6 +46,8 @@ export async function createPlayerResult(req: Request, res: Response): Promise<v
         throw new NotFoundError("Region not found");
     }
 
+    const username = req.user?.username || "System";
+
     //If all checks pass, add player results to the database
     const addPlayerResults = await addDBPlayerResults({
         bushiNaviId: bushiNaviId,
@@ -59,7 +61,9 @@ export async function createPlayerResult(req: Request, res: Response): Promise<v
         isQualified: isQualified,
         eventTypeId: checkEventType.id,
         eventSeriesId: checkEventSeries.id,
-        regionCode: checkRegion.code
+        regionCode: checkRegion.code,
+        createdBy: username,
+        updatedBy: username
     });
     if (!addPlayerResults) {
         throw new NotFoundError("Failed to create player results");
@@ -149,6 +153,8 @@ export async function updatePlayerResults(req: Request, res: Response): Promise<
     const id = req.params.id as string;
     const { bushiNaviId, playerName, formatCode, rank, isSponsored, isFormComplete, invTakenHere, isQualified, decklog } = req.body;
 
+    const username = req.user?.username || "System";
+
     const updateData: Partial<{
         bushiNaviId: string;
         playerName: string;
@@ -159,6 +165,7 @@ export async function updatePlayerResults(req: Request, res: Response): Promise<
         invTakenHere: boolean;
         isQualified: boolean;
         decklog: string;
+        updatedBy: string;
     }> = {};
 
     const getOrginalData = await getDBPlayerResultsById(id);
@@ -175,6 +182,8 @@ export async function updatePlayerResults(req: Request, res: Response): Promise<
     if (getOrginalData.invTakenHere !== invTakenHere) updateData.invTakenHere = invTakenHere;
     if (getOrginalData.isQualified !== isQualified) updateData.isQualified = isQualified;
     if (getOrginalData.decklog !== decklog) updateData.decklog = decklog;
+
+    updateData.updatedBy = username;
 
     const updatedPlayerResults = await updateDBPlayerResults(id, updateData);
     if (!updatedPlayerResults) {

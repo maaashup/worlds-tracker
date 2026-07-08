@@ -13,19 +13,19 @@
 import EventsDisplay from '@/components/events/EventsDisplay.vue';
 
 import { type IEventSummaryArray } from '@/../shared/array-types';
-import { onMounted, ref, computed } from 'vue';
+import { onMounted, ref, computed, inject } from 'vue';
+import { type AxiosInstance } from 'axios';
 import { API_PATH, API_BASE_URL } from '@/services/api-path';
+const api = inject('$api') as AxiosInstance;
 
 onMounted(async () => {
   try {
     const params = new URLSearchParams({
-      eventTimelineId: '8e733b6e-95ad-474f-a6f9-f958ed953279'
+      eventTimelineId: 'ebe728bc-ab62-439a-8261-004e8fece0e0'
     });
 
-    const response = await fetch(`${API_BASE_URL}/${API_PATH.playerResults}/timelinesummary?${params.toString()}`);
-    if (!response.ok) throw new Error(await response.text());
-    const payload = await response.json();
-    eventsSummary.value = payload.data ?? [];
+    const response = await api.get(`${API_PATH.playerResults}/timelinesummary`, { params });
+    eventsSummary.value = response.data.data ?? [];
   } catch (err) {
     console.error('Event fetch failed', err);
   }

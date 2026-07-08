@@ -28,88 +28,66 @@
                         <tbody>
                             <tr v-for="(row, index) in rows" :key="row.id">
                                 <td>
-                                    <input
-                                        type="text"
-                                        v-model="row.bushiNaviId"
+                                    <input type="text" v-model="row.bushiNaviId"
                                         :class="{ 'input-invalid': !!rowErrors[index]?.bushiNaviId }"
                                         @input="validateRowField(index, 'bushiNaviId')"
-                                        @blur="validateRowField(index, 'bushiNaviId')"
-                                    />
-                                    <p v-if="rowErrors[index]?.bushiNaviId" class="field-error">{{ rowErrors[index]?.bushiNaviId }}</p>
+                                        @blur="validateRowField(index, 'bushiNaviId')" />
+                                    <p v-if="rowErrors[index]?.bushiNaviId" class="field-error">{{
+                                        rowErrors[index]?.bushiNaviId }}</p>
                                 </td>
                                 <td>
-                                    <input
-                                        type="text"
-                                        v-model="row.playerName"
+                                    <input type="text" v-model="row.playerName"
                                         :class="{ 'input-invalid': !!rowErrors[index]?.playerName }"
                                         @input="validateRowField(index, 'playerName')"
-                                        @blur="validateRowField(index, 'playerName')"
-                                    />
-                                    <p v-if="rowErrors[index]?.playerName" class="field-error">{{ rowErrors[index]?.playerName }}</p>
+                                        @blur="validateRowField(index, 'playerName')" />
+                                    <p v-if="rowErrors[index]?.playerName" class="field-error">{{
+                                        rowErrors[index]?.playerName }}</p>
                                 </td>
 
                                 <td>
-                                    <input
-                                        type="text"
-                                        v-model="row.decklog"
-                                        placeholder="Decklog code"
-                                    />
+                                    <input type="text" v-model="row.decklog" placeholder="Decklog code" />
                                 </td>
-                                
+
                                 <td>
-                                    <select
-                                        v-model="row.formatCode"
+                                    <select v-model="row.formatCode"
                                         :class="{ 'input-invalid': !!rowErrors[index]?.formatCode }"
-                                        @change="onFormatChanged(index)"
-                                        @blur="validateRowField(index, 'formatCode')"
-                                    >
+                                        @change="onFormatChanged(index)" @blur="validateRowField(index, 'formatCode')">
                                         <option value="" disabled>Select format</option>
-                                        <option
-                                            v-for="format in props.eventDetails?.formats ?? []"
-                                            :key="format"
-                                            :value="format"
-                                            :disabled="isFormatAtCapacityForRow(format, index)"
-                                        >{{ format }}</option>
+                                        <option v-for="format in props.eventDetails?.formats ?? []" :key="format"
+                                            :value="format" :disabled="isFormatAtCapacityForRow(format, index)">{{
+                                            format }}</option>
                                     </select>
-                                    <p v-if="rowErrors[index]?.formatCode" class="field-error">{{ rowErrors[index]?.formatCode }}</p>
+                                    <p v-if="rowErrors[index]?.formatCode" class="field-error">{{
+                                        rowErrors[index]?.formatCode }}</p>
                                 </td>
                                 <td>
-                                    <input
-                                        type="text"
-                                        :value="props.eventDetails?.regionCode ?? ''"
-                                        class="locked-input"
-                                        readonly
-                                        tabindex="-1"
-                                        aria-disabled="true"
-                                    />
+                                    <input type="text" :value="props.eventDetails?.regionCode ?? ''"
+                                        class="locked-input" readonly tabindex="-1" aria-disabled="true" />
                                 </td>
                                 <td>
-                                    <select
-                                        v-model="row.rank"
-                                        :class="{ 'input-invalid': !!rowErrors[index]?.rank }"
-                                        @change="onRankChanged(index)"
-                                        @blur="validateRowField(index, 'rank')"
-                                    >
+                                    <select v-model="row.rank" :class="{ 'input-invalid': !!rowErrors[index]?.rank }"
+                                        @change="onRankChanged(index)" @blur="validateRowField(index, 'rank')">
                                         <option value="1">1</option>
                                         <option value="2">2</option>
                                         <option value="3">3</option>
                                         <option value="4">4</option>
                                     </select>
-                                    <p v-if="rowErrors[index]?.rank" class="field-error">{{ rowErrors[index]?.rank }}</p>
+                                    <p v-if="rowErrors[index]?.rank" class="field-error">{{ rowErrors[index]?.rank }}
+                                    </p>
                                 </td>
                                 <td class="checkbox-cell center-column">
-                                    <input
-                                        type="checkbox"
-                                        v-model="row.isSponsored"
-                                        :disabled="row.rank !== '1'"
-                                        :aria-disabled="row.rank !== '1'"
-                                    />
+                                    <input type="checkbox" v-model="row.isSponsored" :disabled="row.rank !== '1'"
+                                        :aria-disabled="row.rank !== '1'" />
                                 </td>
-                                <td class="checkbox-cell center-column"><input type="checkbox" v-model="row.isFormComplete" /></td>
-                                <td class="checkbox-cell center-column"><input type="checkbox" v-model="row.isQualified" /></td>
-                                <td class="checkbox-cell center-column"><input type="checkbox" v-model="row.invTakenHere" /></td>
+                                <td class="checkbox-cell center-column"><input type="checkbox"
+                                        v-model="row.isFormComplete" /></td>
+                                <td class="checkbox-cell center-column"><input type="checkbox"
+                                        v-model="row.isQualified" /></td>
+                                <td class="checkbox-cell center-column"><input type="checkbox"
+                                        v-model="row.invTakenHere" /></td>
                                 <td class="checkbox-cell row-action-cell center-column">
-                                    <button type="button" class="remove-row-button" :disabled="rows.length === 1" @click="removeRow(index)">
+                                    <button type="button" class="remove-row-button" :disabled="rows.length === 1"
+                                        @click="removeRow(index)">
                                         Remove
                                     </button>
                                 </td>
@@ -119,7 +97,8 @@
                 </div>
 
                 <div class="row-controls">
-                    <button type="button" class="secondary" :disabled="rows.length >= 4" @click="addRow">Add Row</button>
+                    <button type="button" class="secondary" :disabled="rows.length >= 4" @click="addRow">Add
+                        Row</button>
                 </div>
 
                 <p v-if="errorMessage" class="form-error" role="alert">{{ errorMessage }}</p>
@@ -136,11 +115,14 @@
 </template>
 
 <script lang="ts" setup>
-import { onMounted, onUnmounted, ref } from 'vue';
+import { onMounted, onUnmounted, ref, inject } from 'vue';
 import type { IEventDetailsSummary, playerResults } from '../../../shared/array-types';
+import type { AxiosInstance } from 'axios';
 
 import { useEventTimelineStore } from '@/stores/eventTimeline';
 import { API_BASE_URL, API_PATH } from '@/services/api-path';
+
+const api = inject('$api') as AxiosInstance;
 
 type RowModel = {
     id: number;
@@ -462,16 +444,15 @@ const handleSave = async () => {
 
         for (const [index, row] of rows.value.entries()) {
             const payload = buildPayload(row);
-            const response = await fetch(`${API_BASE_URL}/${API_PATH.playerResults}/create`, {
-                method: 'POST',
+            const response = await api.post(`${API_PATH.playerResults}/create`, payload, {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify(payload),
             });
 
-            if (!response.ok) {
-                const responseMessage = await response.text();
+            // ✅ FIX: Check if the response status is 200/201, or look for response.data.data
+            if (response.status !== 200 && response.status !== 201) {
+                const responseMessage = response.data?.message;
                 throw new Error(`Row ${index + 1}: ${responseMessage || 'Failed to add result'}`);
             }
         }

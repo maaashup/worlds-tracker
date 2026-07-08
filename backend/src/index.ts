@@ -1,4 +1,5 @@
 import express from "express";
+import cookieParser from "cookie-parser";
 import { NextFunction, Request, Response } from "express";
 
 import { middlewareLogging, middlewareErrorHandler } from "./middleware/middlewareLogging.js";
@@ -25,7 +26,10 @@ const API_URL = env.API_URL;
 const app = express();
 
 app.use((req: Request, res: Response, next: NextFunction) => {
-  res.header('Access-Control-Allow-Origin', '*');
+  const allowedOrigin = process.env.FRONTEND_URL || 'http://localhost:5173';
+
+  res.header('Access-Control-Allow-Origin', allowedOrigin);
+  res.header('Access-Control-Allow-Credentials', 'true'); //Allows cookies/credentials over CORS.
   res.header('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS');
   res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
 
@@ -38,6 +42,7 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 
 app.use(middlewareLogging);
 app.use(express.json());
+app.use(cookieParser());
 
 app.get("/api/health", (req: Request, res: Response) => {
   respondWithJSON(res, 200, { status: "OK" });

@@ -43,10 +43,13 @@
 </template>
 
 <script lang="ts" setup>
-import { onMounted, onUnmounted, ref } from 'vue';
+import { onMounted, onUnmounted, ref, inject } from 'vue';
 
 import { API_BASE_URL, API_PATH } from '@/services/api-path';
 import type { playerResults } from '../../../shared/array-types';
+import type { AxiosInstance } from 'axios';
+
+const api = inject('$api') as AxiosInstance;
 
 const props = defineProps<{
     player: playerResults;
@@ -79,19 +82,18 @@ const confirmDelete = async () => {
     errorMessage.value = '';
 
     try {
-        const response = await fetch(`${API_BASE_URL}/${API_PATH.playerResults}/delete/${props.player.id}`, {
-            method: 'DELETE',
-        });
+        const response = await api.delete(`${API_PATH.playerResults}/delete/${props.player.id}`);
 
-        if (!response.ok) {
-            throw new Error(await response.text());
+        if (response.status !== 200 && response.status !== 204) {
+            const responseMessage = response.data?.message;
+            throw new Error(responseMessage || 'Failed to delete player result');
         }
 
         emit('deleted');
         closeModal();
-    } catch (error) {
+    } catch (error: any) {
         console.error('Error deleting player result:', error);
-        errorMessage.value = 'Failed to delete the player result.';
+        errorMessage.value = error.response?.data?.message || error.message || 'Failed to delete the player result.';
     } finally {
         isDeleting.value = false;
     }
@@ -166,7 +168,7 @@ onUnmounted(() => {
 .summary-table {
     width: 100%;
     border-collapse: collapse;
-    table-layout: fixed;
+    table-layout: auto;
 }
 
 .summary-table th,
@@ -183,7 +185,11 @@ onUnmounted(() => {
 
 .form-error {
     margin: 0 0 1rem;
-    color: #dc2626;
+    padding: 0.55rem 0.7rem;
+    border: 1px solid #fca5a5;
+    background: #fef2f2;
+    color: #b91c1c;
+    border-radius: 0.4rem;
     font-size: 0.9rem;
 }
 

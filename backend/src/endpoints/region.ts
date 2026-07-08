@@ -12,7 +12,9 @@ export async function createRegion(req: Request, res: Response): Promise<void> {
         throw new BadRequestError("Missing required fields");
     }
 
-    const addRegion = await addDBRegion({ code, fullRegionName, isActive });
+    const username = req.user?.username || "System";
+
+    const addRegion = await addDBRegion({ code, fullRegionName, isActive, createdBy: username, updatedBy: username });
     if (!addRegion) {
         throw new NotFoundError("Failed to create region");
     }

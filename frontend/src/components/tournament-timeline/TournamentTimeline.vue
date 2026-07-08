@@ -33,13 +33,16 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, inject } from 'vue';
 import Timeline from 'primevue/timeline';
 import { API_BASE_URL, API_PATH } from '@/services/api-path';
 import { useEventTimelineStore } from '@/stores/eventTimeline';
 import { formatDate } from '@/../shared/helperfunctions';
 
 import { type IEventDetailsSummary } from '@/../shared/array-types';
+import type { AxiosInstance } from 'axios';
+
+const api = inject('$api') as AxiosInstance;
 
 const tournaments = ref<IEventDetailsSummary[]>([]);
 const loading = ref<boolean>(true);
@@ -47,10 +50,8 @@ const eventTimelineId: string = useEventTimelineStore().eventTimelineYear;
 
 onMounted(async () => {
   try {
-    const response = await fetch(`${API_BASE_URL}/${API_PATH.eventseries}/${eventTimelineId}/all`);
-    if (!response.ok) throw new Error('Network response was not ok');
-    
-    tournaments.value = await response.json();
+    const response = await api.get(`${API_PATH.eventseries}/${eventTimelineId}/all`);
+    tournaments.value = response.data.data ?? [];
   } catch (error) {
     console.error('Error fetching tournament timeline:', error);
   } finally {

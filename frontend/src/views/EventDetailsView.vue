@@ -55,13 +55,20 @@
                                     <td>{{ player.invTakenHere ? 'Yes' : 'No' }}</td>
                                     <td>
                                         <EditResultButton
+                                            v-if="authStore.user?.isAdmin || authStore.user?.isOwner"
                                             :player="player"
                                             :formats="eventDetails?.formats ?? []"
                                             :regionCode="eventDetails?.regionCode ?? ''"
                                             @updated="loadPlayerResults"
                                         />
                                     </td>
-                                    <td><DeleteResultButton :player="player" @deleted="loadPlayerResults" /></td>
+                                    <td>
+                                        <DeleteResultButton
+                                            v-if="authStore.user?.isOwner"
+                                            :player="player"
+                                            @deleted="loadPlayerResults"
+                                        />
+                                    </td>
                                 </tr>
                             </tbody>
                         </table>
@@ -76,10 +83,11 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue';
+import { computed, onMounted, ref, inject } from 'vue';
 import { useRoute } from 'vue-router';
 import { formatDate } from '@/../shared/helperfunctions';
-
+import { type AxiosInstance } from 'axios';
+import { useAuthStore } from '@/stores/auth';
 
 import AddResultButton from '@/components/eventdetails/AddResultButton.vue';
 import EditResultButton from '@/components/eventdetails/EditResultButton.vue';
@@ -92,10 +100,12 @@ import type { IEventDetailsSummary, playerResults } from '../../shared/array-typ
 const DECKLOG_BASE_URL = 'https://decklog-en.bushiroad.com/view/';
 
 const route = useRoute();
+const authStore = useAuthStore();
 
 const eventId = String(route.params.id ?? '');
 const playerSummary = ref<playerResults[]>([]);
 const eventDetails = ref<IEventDetailsSummary>();
+const api = inject('$api') as AxiosInstance;
 
 const loadPlayerResults = async () => {
     try {
@@ -103,11 +113,8 @@ const loadPlayerResults = async () => {
             eventId,
         });
 
-        const response = await fetch(`${API_BASE_URL}/${API_PATH.playerResults}/results?${params.toString()}`);
-        if (!response.ok) throw new Error(await response.text());
-
-        const payload = await response.json();
-        playerSummary.value = payload.data ?? [];
+        const response = await api.get(`${API_PATH.playerResults}/results`, { params });
+        playerSummary.value = response.data.data ?? [];
     } catch (err) {
         console.error('Event fetch failed', err);
     }
@@ -120,11 +127,8 @@ const loadEventDetails = async () => {
             eventId,
         });
 
-        const response = await fetch(`${API_BASE_URL}/${API_PATH.eventseries}/summary?${params.toString()}`);
-        if (!response.ok) throw new Error(await response.text());
-
-        const payload = await response.json();
-        eventDetails.value = payload.data ?? [];
+        const response = await api.get(`${API_PATH.eventseries}/summary`, { params });
+        eventDetails.value = response.data.data ?? [];
     } catch (err) {
         console.error('Formats fetch failed', err);
     }

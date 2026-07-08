@@ -36,7 +36,9 @@ export async function createEventSeries(req: Request, res: Response): Promise<vo
 
     // respondWithJSON(res, 201, {name: name, eventType: checkEventType.code, region, eventTimeline: validEventTimeline.id, date});
 
-    const newEventSeries = await addDBEventSeries({ name, eventTypeId: checkEventType.id, regionCode: checkRegion.code , eventTimelineId: validEventTimeline.id, formats, date });
+    const username = req.user?.username || "System";
+
+    const newEventSeries = await addDBEventSeries({ name, eventTypeId: checkEventType.id, regionCode: checkRegion.code , eventTimelineId: validEventTimeline.id, formats, date, createdBy: username, updatedBy: username });
     if (!newEventSeries) {
         throw new BadRequestError("Failed to create event series");
     }
@@ -64,7 +66,7 @@ export async function getAllEventSeriesForTimelineYear(req: Request, res: Respon
 
     const response = await getDBAllEventSeriesByTLYear(eventTimelineData.id);
 
-    return respondWithJSON(res, 200, response);
+    return respondWithJSON(res, 200, { data: response });
 }
 
 export async function getEventSummary(req: Request, res: Response) {
