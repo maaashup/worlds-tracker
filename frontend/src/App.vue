@@ -1,14 +1,21 @@
 <template>
-  
-  <div class="app">
-    <Sidebar />
+  <div class="app" :class="{ 'no-sidebar': !showSidebar }">
+    <Sidebar v-if="showSidebar" />
     <RouterView />
   </div>
 </template>
 
 <script setup lang="ts">
-import Sidebar from './components/sidebar/Sidebar.vue';
+import { computed } from 'vue';
+import { useRoute } from 'vue-router';
 
+import Sidebar from './components/sidebar/Sidebar.vue';
+import { useAuthStore } from './stores/auth';
+
+const authStore = useAuthStore();
+const route = useRoute();
+
+const showSidebar = computed(() => authStore.isLoggedIn && route.name !== 'login');
 
 </script>
 
@@ -40,6 +47,11 @@ button {
 
 .app {
   display: flex;
+  min-height: 100vh;
+
+  &.no-sidebar {
+    display: block;
+  }
   
   main {
     flex: 1 1 0;

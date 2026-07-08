@@ -74,75 +74,73 @@ async function handleLoginSubmit() {
 </script>
 
 <style scoped lang="scss">
-// SCSS Variables
-$vue-green: #42b883;
-$vue-green-hover: #359f6e;
-$bg-card: #1e1e1e;
-$bg-input: #2a2a2a;
-$border-color: #333;
-$error-color: #ff6b6b;
-
 .login-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 80vh;
-  padding: 1rem;
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 2rem 1rem;
+  background:
+    radial-gradient(circle at 10% 20%, rgba(222, 74, 74, 0.12), transparent 40%),
+    radial-gradient(circle at 90% 80%, rgba(51, 65, 85, 0.16), transparent 35%),
+    linear-gradient(180deg, #f8fafc 0%, #eef2f7 100%);
 
   .login-card {
-    background: $bg-card;
-    padding: 2.5rem;
-    border-radius: 8px;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
     width: 100%;
-    max-width: 400px;
-    border: 1px solid #2d2d2d;
+    max-width: 430px;
+    padding: 2.5rem;
+    border-radius: 18px;
+    border: 1px solid rgba(100, 116, 139, 0.24);
+    background: rgba(248, 250, 252, 0.95);
+    backdrop-filter: blur(8px);
+    box-shadow: 0 24px 50px rgba(30, 41, 59, 0.18);
 
     .brand-header {
       text-align: center;
-      margin-bottom: 2rem;
+      margin-bottom: 1.8rem;
 
       h2 {
-        margin: 0;
-        color: #fff;
-        font-size: 1.8rem;
+        color: var(--dark);
+        font-size: 1.75rem;
+        letter-spacing: 0.02em;
       }
 
       .subtitle {
-        margin: 0.25rem 0 0;
-        color: #888;
-        font-size: 0.9rem;
+        margin-top: 0.35rem;
+        color: var(--grey);
+        font-size: 0.92rem;
       }
     }
 
     .form-group {
-      margin-bottom: 1.25rem;
+      margin-bottom: 1rem;
       display: flex;
       flex-direction: column;
 
       label {
-        margin-bottom: 0.5rem;
+        margin-bottom: 0.45rem;
+        color: var(--dark-alt);
         font-size: 0.85rem;
-        color: #bbb;
-        font-weight: 500;
+        font-weight: 600;
       }
 
       input {
-        padding: 0.75rem;
-        border-radius: 4px;
-        border: 1px solid $border-color;
-        background: $bg-input;
-        color: #fff;
-        font-size: 1rem;
-        transition: border-color 0.2s;
+        height: 44px;
+        padding: 0 0.8rem;
+        border: 1px solid rgba(100, 116, 139, 0.35);
+        border-radius: 9px;
+        background: #fff;
+        color: var(--dark);
+        font-size: 0.96rem;
+        transition: border-color 0.2s ease, box-shadow 0.2s ease;
 
         &:focus {
           outline: none;
-          border-color: $vue-green;
+          border-color: var(--primary);
+          box-shadow: 0 0 0 3px rgba(222, 74, 74, 0.2);
         }
 
         &:disabled {
-          opacity: 0.6;
+          opacity: 0.7;
           cursor: not-allowed;
         }
       }
@@ -150,35 +148,45 @@ $error-color: #ff6b6b;
 
     button {
       width: 100%;
-      padding: 0.75rem;
-      background: $vue-green;
-      color: #1a1a1a;
-      border: none;
-      border-radius: 4px;
-      font-weight: bold;
-      font-size: 1rem;
-      cursor: pointer;
-      margin-top: 1rem;
-      transition: background 0.2s;
+      margin-top: 0.8rem;
+      height: 46px;
+      border-radius: 10px;
+      background: linear-gradient(180deg, rgba(222, 74, 74, 1) 0%, rgba(198, 58, 58, 1) 100%);
+      color: #fff;
+      font-size: 0.98rem;
+      font-weight: 700;
+      letter-spacing: 0.01em;
+      transition: transform 0.15s ease, box-shadow 0.2s ease, filter 0.2s ease;
 
       &:hover:not(:disabled) {
-        background: $vue-green-hover;
+        transform: translateY(-1px);
+        box-shadow: 0 10px 22px rgba(222, 74, 74, 0.35);
+        filter: brightness(1.03);
       }
 
       &:disabled {
-        opacity: 0.5;
+        opacity: 0.55;
         cursor: not-allowed;
       }
     }
 
     .error-msg {
-      color: $error-color;
-      font-size: 0.85rem;
-      margin: 0.5rem 0;
-      background: rgba($error-color, 0.1);
-      padding: 0.5rem;
-      border-radius: 4px;
-      border-left: 3px solid $error-color;
+      margin-top: 0.45rem;
+      border-left: 3px solid var(--primary);
+      border-radius: 7px;
+      padding: 0.55rem 0.7rem;
+      background: rgba(222, 74, 74, 0.09);
+      color: #b02f2f;
+      font-size: 0.84rem;
+    }
+  }
+
+  @media (max-width: 560px) {
+    padding: 1rem;
+
+    .login-card {
+      padding: 1.5rem;
+      border-radius: 14px;
     }
   }
 }
