@@ -9,14 +9,14 @@ import { migrate } from "drizzle-orm/postgres-js/migrator";
 import { drizzle } from "drizzle-orm/postgres-js";
 import { config } from "./config.js";
 
-import { createEventTimeline, getAllEventTimelines, getEventTimelineByID, getEventTimelineByEventYear } from "./endpoints/eventTimeline.js";
-import { createEventType, getAllEventTypes, getEventTypeByCode } from "./endpoints/eventType.js";
-import { createEventSeries, getAllEventSeries, getAllEventSeriesForTimelineYear, getEventSummary } from "./endpoints/eventSeries.js";
-import { createFormat, getFormatByCode, getFormatById, getFormats } from "./endpoints/format.js";
-import { createPlayerResult, deletePlayerResults, getAllPlayerResultsByEventId, getAllPlayerResultsByTimeline, getPlayerResults, getPlayerResultsById, getPlayerResultsByNaviId, updatePlayerResults } from "./endpoints/playerResult.js";
-import { createRegion, getRegionByCode, getRegions } from "./endpoints/region.js";
-import { createUser, LoginUser, updateUserPassword, logoutUser } from "./endpoints/users.js";
-import { refreshToken, revokeToken } from "./endpoints/tokens.js";
+import { eventTimelineRoutes } from "./routes/eventTimelineRoutes.js";
+import { eventSeriesRoutes } from "./routes/eventSeriesRoutes.js";
+import { eventTypeRoutes } from "./routes/eventTypeRoutes.js";
+import { formatRoutes } from "./routes/formatRoutes.js";
+import { playerResultRoutes } from "./routes/playerResultRoutes.js";
+import { regionRoutes } from "./routes/regionRoutes.js";
+import { tokensRoutes } from "./routes/tokensRoutes.js";
+import { usersRoutes } from "./routes/usersRoutes.js";
 
 const env = process.env;
 const PORT = env.API_PORT || 3000;
@@ -43,54 +43,15 @@ app.get("/api/health", (req: Request, res: Response) => {
   respondWithJSON(res, 200, { status: "OK" });
 });
 
-//Main Backend Endpoints:
-
-//User Endpoints:
-app.post("/api/users/create", createUser);
-app.post("/api/users/login", LoginUser);
-app.put("/api/users/update", updateUserPassword);
-app.post("/api/users/logout", logoutUser);
-
-//Token Endpoints:
-app.post("/api/tokens/refresh", refreshToken);
-app.post("/api/tokens/revoke", revokeToken);
-
-
-// Event Timeline Endpoints:
-app.post("/api/event-timeline/create", createEventTimeline);
-app.get("/api/event-timeline", getAllEventTimelines);
-app.get("/api/event-timeline/id/:id", getEventTimelineByID);
-app.get("/api/event-timeline/event-year/:eventYear", getEventTimelineByEventYear);
-
-//Event Series Endpoints:
-app.post("/api/event-series/create", createEventSeries);
-app.get("/api/event-series", getAllEventSeries);
-app.get("/api/event-series/:id/all", getAllEventSeriesForTimelineYear);
-app.get("/api/event-series/summary", getEventSummary);
-
-//Player Results Endpoints:
-app.post("/api/player-result/create", createPlayerResult);
-app.get("/api/player-result/all", getPlayerResults);
-app.get("/api/player-result/id/:id", getPlayerResultsById);
-app.get("/api/player-result/navi-id/:naviId", getPlayerResultsByNaviId);
-app.get("/api/player-result/timelinesummary", getAllPlayerResultsByTimeline);
-app.get("/api/player-result/results", getAllPlayerResultsByEventId);
-app.put("/api/player-result/update/:id", updatePlayerResults);
-app.delete("/api/player-result/delete/:id", deletePlayerResults);
-
-//Helper Endpoints:
-app.post("/api/event-type/create", createEventType);
-app.get("/api/event-type", getAllEventTypes);
-app.get("/api/event-type/code/:code", getEventTypeByCode);
-
-app.post("/api/format/create", createFormat);
-app.get("/api/format", getFormats);
-app.get("/api/format/id/:id", getFormatById);
-app.get("/api/format/code/:code", getFormatByCode);
-
-app.post("/api/regions/create", createRegion);
-app.get("/api/regions", getRegions);
-app.get("/api/regions/code/:code", getRegionByCode);
+// Main backend route modules:
+app.use("/api/users", usersRoutes);
+app.use("/api/tokens", tokensRoutes);
+app.use("/api/event-timeline", eventTimelineRoutes);
+app.use("/api/event-series", eventSeriesRoutes);
+app.use("/api/player-result", playerResultRoutes);
+app.use("/api/event-type", eventTypeRoutes);
+app.use("/api/format", formatRoutes);
+app.use("/api/regions", regionRoutes);
 
 
 app.use(middlewareErrorHandler);
@@ -123,20 +84,4 @@ async function runMigrations() {
     await new Promise(res => setTimeout(res, 5000));
     return runMigrations(); // Recursive retry
   }
-}
-
-function getPgErrorCode(error: unknown): string | undefined {
-  if (typeof error !== "object" || error === null) {
-    return undefined;
-  }
-
-  if ("code" in error && typeof error.code === "string") {
-    return error.code;
-  }
-
-  if ("cause" in error && typeof error.cause === "object" && error.cause !== null && "code" in error.cause && typeof error.cause.code === "string") {
-    return error.cause.code;
-  }
-
-  return undefined;
 }

@@ -8,6 +8,7 @@
     "api:build": "tsc",
     "api:start": "node --env-file=../.env dist/index.js",
     "api:dev": "node --env-file=../.env --import tsx --watch src/index.ts",
+    "auth:bootstrap-owner": "node --env-file=../.env --import tsx src/scripts/bootstrapOwner.ts",
     "type-check": "tsc --noEmit",
     "db:generate": "npx drizzle-kit generate --config=src/drizzle.config.ts",
     "db:migrate": "npx drizzle-kit migrate --config=src/drizzle.config.ts"

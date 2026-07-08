@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { BadRequestError, UnauthorisedError } from "../middleware/middlewareLogging.js";
 import { respondWithJSON } from "../helperfunctions/respondWithJSON.js";
 import {createDBUser, getDBUserByUsername, updateDBUser} from "../db/query/users.js";
-import { getBearerToken, hashPassword, makeJWT, makeRefreshToken, validateJWT, verifyPassword } from "../helperfunctions/auth.js";
+import { hashPassword, makeJWT, makeRefreshToken, verifyPassword } from "../helperfunctions/auth.js";
 import { config } from "../config.js";
 import { createDBRefreshToken, getDBRefreshTokenByToken } from "../db/query/refreshTokens.js";
 import { revokeDBRefreshToken } from "../db/query/refreshTokens.js";
@@ -73,14 +73,15 @@ export async function LoginUser(req: Request, res: Response): Promise<void> {
 }
 
 export async function updateUserPassword(req: Request, res: Response): Promise<void> {
-    const AccessToken = getBearerToken(req);
     const { username, password, newPassword } = req.body;
 
     if (!username || !password || !newPassword) {
         throw new BadRequestError("Missing required fields: username, password, newPassword");
     }
 
-    const validateToken = validateJWT(AccessToken, config.secretKey);
+  if (!req.userId) {
+    throw new UnauthorisedError("Invalid access token");
+  }
 
     const existingUser = await getDBUserByUsername(username);
     const validatePassword = await verifyPassword(existingUser.passwordHash, password);
@@ -89,7 +90,7 @@ export async function updateUserPassword(req: Request, res: Response): Promise<v
         throw new UnauthorisedError("Invalid password or username");
     }
 
-    if (validateToken !== existingUser.id) {
+    if (req.userId !== existingUser.id) {
         throw new UnauthorisedError("User cannot change the password of another user");
     }
 
@@ -119,15 +120,18 @@ export async function updateUserPassword(req: Request, res: Response): Promise<v
 }
 
 export async function logoutUser(req: Request, res: Response): Promise<void> {
-  const refreshToken = getBearerToken(req);
-  const storedRefreshToken = await getDBRefreshTokenByToken(refreshToken);
+  if (!req.refreshToken) {
+    throw new UnauthorisedError("Invalid refresh token");
+  }
+
+  const storedRefreshToken = await getDBRefreshTokenByToken(req.refreshToken);
   const currentDate = new Date();
 
   if (!storedRefreshToken || currentDate > storedRefreshToken.expiresAt || !!storedRefreshToken.revokedAt) {
     throw new UnauthorisedError("Invalid refresh token");
   }
 
-  await revokeDBRefreshToken(refreshToken, currentDate);
+  await revokeDBRefreshToken(req.refreshToken, currentDate);
 
   respondWithJSON(res, 204, {});
 }

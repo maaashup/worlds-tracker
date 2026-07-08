@@ -15,6 +15,13 @@
       "when": 1783459069637,
       "tag": "0001_tranquil_enchantress",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1783497086851,
+      "tag": "0002_chemical_odin",
+      "breakpoints": true
     }
   ]
 }
