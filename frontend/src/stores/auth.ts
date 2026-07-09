@@ -9,6 +9,7 @@ interface User {
   username: string;
   isAdmin: boolean;
   isOwner: boolean;
+  firstLogin: boolean;
 }
 
 export const useAuthStore = defineStore('auth', () => {

@@ -15,6 +15,11 @@ const router = createRouter({
 
     // -- Authenticated routes --
     {
+      path: '/reset-password',
+      name: 'reset-password',
+      component: () => import('../views/ResetPasswordView.vue'),
+    },
+    {
       path: '/',
       name: 'home',
       component: HomeView,
@@ -49,6 +54,10 @@ router.beforeEach(async (to, from, next) => {
   }
 
   const isAuthenticated = authStore.isLoggedIn;
+  //If logged in, check if firstLogin is true and redirect to reset-password if so:
+  if (isAuthenticated && authStore.user?.firstLogin && to.name !== 'reset-password') {
+    return next({ name: 'reset-password' });
+  }
 
   //If the user tries to access something whilst unauthenticated, redirect to login:
   if (!to.meta.isPublic && !isAuthenticated) {
@@ -57,6 +66,9 @@ router.beforeEach(async (to, from, next) => {
 
   //If the user tries to access login whilst authenticated, redirect to home:
   if (to.name === 'login' && isAuthenticated) {
+    if (authStore.user?.firstLogin) {
+      return next({ name: 'reset-password' });
+    }
     return next({ name: 'home' });
   }
 

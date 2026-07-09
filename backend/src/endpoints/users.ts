@@ -86,6 +86,7 @@ export async function LoginUser(req: Request, res: Response): Promise<void> {
       username: existingUser.username,
       isAdmin: existingUser.isAdmin,
       isOwner: existingUser.isOwner,
+      firstLogin: existingUser.firstLogin,
     },
   });
 }
@@ -102,10 +103,14 @@ export async function updateUserPassword(req: Request, res: Response): Promise<v
   }
 
     const existingUser = await getDBUserByUsername(username);
+    if (!existingUser) {
+        throw new NotFoundError("Invalid username");
+    }
+
     const validatePassword = await verifyPassword(existingUser.passwordHash, password);
 
-    if (!validatePassword || !existingUser) {
-        throw new UnauthorisedError("Invalid password or username");
+    if (!validatePassword) {
+        throw new UnauthorisedError("Invalid password");
     }
 
     if (req.userId !== existingUser.id) {
@@ -124,10 +129,20 @@ export async function updateUserPassword(req: Request, res: Response): Promise<v
         throw new BadRequestError("Failed to update user");
     }
 
+    const token = makeJWT(updatedUser.id, 3600, config.secretKey);
+
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: 3600 * 1000, // 1 hour
+    });
+
     respondWithJSON(res, 200, {
         data: {
             id: updatedUser.id,
             username: updatedUser.username,
+            firstLogin: updatedUser.firstLogin,
             createdAt: updatedUser.createdAt,
             updatedAt: updatedUser.updatedAt,
             updatedBy: updatedUser.updatedBy,

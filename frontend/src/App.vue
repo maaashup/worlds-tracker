@@ -15,7 +15,8 @@ import { useAuthStore } from './stores/auth';
 const authStore = useAuthStore();
 const route = useRoute();
 
-const showSidebar = computed(() => authStore.isLoggedIn && route.name !== 'login');
+const sidebarHiddenRoutes = new Set(['login', 'reset-password']);
+const showSidebar = computed(() => authStore.isLoggedIn && !sidebarHiddenRoutes.has(String(route.name)));
 
 </script>
 

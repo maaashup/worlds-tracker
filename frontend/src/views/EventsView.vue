@@ -62,7 +62,6 @@ const groupedEventsSummary = computed(() => {
     display: flex;
     flex-direction: column;
     align-items: center;
-    min-height: 100vh;
     max-width: 100vw;
     margin: 0 auto;
     flex: 1; // Allows the main content to take up the remaining space next to the sidebar
