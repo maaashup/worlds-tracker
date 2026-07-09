@@ -1,17 +1,23 @@
 import { defineConfig } from 'drizzle-kit';
  
+let dbUrl = process.env.DATABASE_URL || process.env.DB_URL || process.env.LOCAL_DB_URL;
+if (!dbUrl) {
+  throw new Error("Database connection URL could not be resolved from environment variables.");
+}
+
+if (process.env.NODE_ENV === 'production' && dbUrl) {
+  const parsedUrl = new URL(dbUrl);
+  parsedUrl.searchParams.set('sslmode', 'require');
+  dbUrl = parsedUrl.toString();
+}
+
 export default defineConfig({
-  schema: "./src/db/schema.ts", // path to your schema.ts file
-  out: "./src/db/migrations", // path to your migrations
+  schema: "./src/db/schema.ts", 
+  out: "./src/db/migrations", 
   dialect: "postgresql",
   strict: true,
   verbose: true,
   dbCredentials: {
-  host: process.env.DB_HOST!,
-  port: Number(process.env.DB_EXTERNAL_PORT!),
-  user: process.env.DB_USER!,
-  password: process.env.DB_PASSWORD!,
-  database: process.env.DB_NAME!,
-  ssl: false, // Explicitly disable SSL
-},
-})
+    url: dbUrl, // 🚀 Uses our clean, dynamically compiled connection endpoint!
+  },
+});

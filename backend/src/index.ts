@@ -74,14 +74,11 @@ async function startServer() {
 
 async function runMigrations() {
   try {
-    const migrationClient = postgres({
-      host: config.db.host,
-      port: config.db.port,
-      username: config.db.user,
-      password: config.db.password,
-      database: config.db.database,
+    const migrationClient = postgres(config.db.url, {
       max: 1,
+      ssl: config.db.ssl, 
     });
+    
     await migrate(drizzle(migrationClient), config.db.migrationConfig);
     console.log("✅ Migrations completed!");
   } catch (error) {

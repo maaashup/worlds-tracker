@@ -15,7 +15,7 @@ import EventsDisplay from '@/components/events/EventsDisplay.vue';
 import { type IEventSummaryArray } from '@/../shared/array-types';
 import { onMounted, ref, computed, inject } from 'vue';
 import { type AxiosInstance } from 'axios';
-import { API_PATH, API_BASE_URL } from '@/services/api-path';
+import { API_PATH } from '@/services/api-path';
 const api = inject('$api') as AxiosInstance;
 
 onMounted(async () => {
