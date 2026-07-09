@@ -1,7 +1,7 @@
 <template>
     <button class="open-button" @click="openModal">Delete</button>
 
-    <div v-if="isOpen" class="modal-backdrop" role="presentation" @click.self="closeModal">
+    <div v-if="isOpen" class="modal-backdrop" role="presentation">
         <section class="modal-card" role="dialog" aria-modal="true" aria-labelledby="delete-result-title">
             <header class="modal-header">
                 <h2 id="delete-result-title">Delete Result</h2>
@@ -43,7 +43,7 @@
 </template>
 
 <script lang="ts" setup>
-import { onMounted, onUnmounted, ref, inject } from 'vue';
+import { ref, inject } from 'vue';
 
 import { API_BASE_URL, API_PATH } from '@/services/api-path';
 import type { playerResults } from '../../../shared/array-types';
@@ -98,20 +98,6 @@ const confirmDelete = async () => {
         isDeleting.value = false;
     }
 };
-
-const onKeyDown = (event: KeyboardEvent) => {
-    if (event.key === 'Escape' && isOpen.value) {
-        closeModal();
-    }
-};
-
-onMounted(() => {
-    window.addEventListener('keydown', onKeyDown);
-});
-
-onUnmounted(() => {
-    window.removeEventListener('keydown', onKeyDown);
-});
 
 </script>
 

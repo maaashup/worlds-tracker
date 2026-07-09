@@ -9,6 +9,8 @@ import {
     getPlayerResultsById,
     getPlayerResultsByNaviId,
     updatePlayerResults,
+    findAllInvitesForPlayer,
+    getDashboardRollDownAlerts
 } from "../endpoints/playerResult.js";
 import { middlewareIsLoggedIn } from "../middleware/middlewareIsLoggedIn.js";
 
@@ -24,3 +26,5 @@ playerResultRoutes.get("/timelinesummary", getAllPlayerResultsByTimeline);
 playerResultRoutes.get("/results", getAllPlayerResultsByEventId);
 playerResultRoutes.put("/update/:id", updatePlayerResults);
 playerResultRoutes.delete("/delete/:id", deletePlayerResults);
+playerResultRoutes.get("/check-invites", findAllInvitesForPlayer);
+playerResultRoutes.get("/dashboard-alerts", getDashboardRollDownAlerts);

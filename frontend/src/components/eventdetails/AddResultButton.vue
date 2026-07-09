@@ -1,7 +1,7 @@
 <template>
     <button class="open-button" @click="openModal">Add Result</button>
 
-    <div v-if="isOpen" class="modal-backdrop" role="presentation" @click.self="closeModal">
+    <div v-if="isOpen" class="modal-backdrop" role="presentation">
         <section class="modal-card" role="dialog" aria-modal="true" aria-labelledby="add-result-title">
             <header class="modal-header">
                 <h2 id="add-result-title">Add Result</h2>
@@ -55,7 +55,7 @@
                                         <option value="" disabled>Select format</option>
                                         <option v-for="format in props.eventDetails?.formats ?? []" :key="format"
                                             :value="format" :disabled="isFormatAtCapacityForRow(format, index)">{{
-                                            format }}</option>
+                                                format }}</option>
                                     </select>
                                     <p v-if="rowErrors[index]?.formatCode" class="field-error">{{
                                         rowErrors[index]?.formatCode }}</p>
@@ -115,12 +115,12 @@
 </template>
 
 <script lang="ts" setup>
-import { onMounted, onUnmounted, ref, inject } from 'vue';
+import { ref, inject } from 'vue';
 import type { IEventDetailsSummary, playerResults } from '../../../shared/array-types';
 import type { AxiosInstance } from 'axios';
 
 import { useEventTimelineStore } from '@/stores/eventTimeline';
-import { API_BASE_URL, API_PATH } from '@/services/api-path';
+import { API_PATH } from '@/services/api-path';
 
 const api = inject('$api') as AxiosInstance;
 
@@ -163,6 +163,7 @@ type CreateResultPayload = {
 const eventTimelineStore = useEventTimelineStore();
 const emit = defineEmits<{
     (event: 'saved'): void;
+    (event: 'checkConflicts', payloads: { bushiNaviId: string; playerName: string; formatCode: string }[]): void;
 }>();
 
 const props = defineProps<{
@@ -450,15 +451,21 @@ const handleSave = async () => {
                 },
             });
 
-            // ✅ FIX: Check if the response status is 200/201, or look for response.data.data
             if (response.status !== 200 && response.status !== 201) {
                 const responseMessage = response.data?.message;
                 throw new Error(`Row ${index + 1}: ${responseMessage || 'Failed to add result'}`);
             }
         }
 
+        const savedRowsSummary = rows.value.map(row => ({
+            bushiNaviId: row.bushiNaviId.trim(),
+            playerName: row.playerName.trim(),
+            formatCode: row.formatCode
+        }));
+
         closeModal();
         emit('saved');
+        emit('checkConflicts', savedRowsSummary);
     } catch (error) {
         errorMessage.value = error instanceof Error ? error.message : 'Something went wrong while adding results.';
     } finally {
@@ -466,19 +473,6 @@ const handleSave = async () => {
     }
 };
 
-const onKeyDown = (event: KeyboardEvent) => {
-    if (event.key === 'Escape' && isOpen.value) {
-        closeModal();
-    }
-};
-
-onMounted(() => {
-    window.addEventListener('keydown', onKeyDown);
-});
-
-onUnmounted(() => {
-    window.removeEventListener('keydown', onKeyDown);
-});
 </script>
 
 <style lang="scss" scoped>

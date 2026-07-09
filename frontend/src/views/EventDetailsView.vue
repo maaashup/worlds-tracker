@@ -4,19 +4,20 @@
             <h1> {{ eventDetails?.eventType }} {{ eventDetails?.name }} ({{ eventDetails?.regionCode }})</h1>
             <h4>{{ formatDate(eventDetails?.eventDate as string) }}</h4>
             <div class="button-container">
-                <AddResultButton :eventDetails="eventDetails" :existingResults="playerSummary" @saved="loadPlayerResults" />
+                <AddResultButton :eventDetails="eventDetails" :existingResults="playerSummary"
+                    @saved="loadPlayerResults" @checkConflicts="recentSubmissionBatch = $event" />
             </div>
         </div>
+
+        <ConflictSummaryModal :submittedRows="recentSubmissionBatch"
+            :eventTimelineYear="useEventTimelineStore().eventTimelineYear" :eventId="eventId"
+            @closed="recentSubmissionBatch = []" />
 
 
         <div class="main-container">
             <div class="data-container">
-                <article
-                    v-for="format in eventDetails?.formats ?? []"
-                    :key="format"
-                    class="format-card"
-                    :class="{ 'format-card--empty': !playersByFormat[format]?.length }"
-                >
+                <article v-for="format in eventDetails?.formats ?? []" :key="format" class="format-card"
+                    :class="{ 'format-card--empty': !playersByFormat[format]?.length }">
                     <h3 class="format-title">{{ format }}</h3>
 
                     <div v-if="playersByFormat[format]?.length" class="table-wrapper">
@@ -40,12 +41,8 @@
                                     <td>{{ player.bushiNaviId }}</td>
                                     <td>{{ player.playerName }}</td>
                                     <td>
-                                        <a
-                                            v-if="player.decklog"
-                                            :href="getDecklogUrl(player.decklog)"
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                        >{{ player.decklog }}</a>
+                                        <a v-if="player.decklog" :href="getDecklogUrl(player.decklog)" target="_blank"
+                                            rel="noopener noreferrer">{{ player.decklog }}</a>
                                         <span v-else>N/A</span>
                                     </td>
                                     <td>{{ player.rank }}</td>
@@ -54,20 +51,13 @@
                                     <td>{{ player.isQualified ? 'Yes' : 'No' }}</td>
                                     <td>{{ player.invTakenHere ? 'Yes' : 'No' }}</td>
                                     <td>
-                                        <EditResultButton
-                                            v-if="authStore.user?.isAdmin || authStore.user?.isOwner"
-                                            :player="player"
-                                            :formats="eventDetails?.formats ?? []"
-                                            :regionCode="eventDetails?.regionCode ?? ''"
-                                            @updated="loadPlayerResults"
-                                        />
+                                        <EditResultButton v-if="authStore.user?.isAdmin || authStore.user?.isOwner"
+                                            :player="player" :formats="eventDetails?.formats ?? []"
+                                            :regionCode="eventDetails?.regionCode ?? ''" @updated="loadPlayerResults" />
                                     </td>
                                     <td>
-                                        <DeleteResultButton
-                                            v-if="authStore.user?.isOwner"
-                                            :player="player"
-                                            @deleted="loadPlayerResults"
-                                        />
+                                        <DeleteResultButton v-if="authStore.user?.isOwner" :player="player"
+                                            @deleted="loadPlayerResults" />
                                     </td>
                                 </tr>
                             </tbody>
@@ -88,12 +78,14 @@ import { useRoute } from 'vue-router';
 import { formatDate } from '@/../shared/helperfunctions';
 import { type AxiosInstance } from 'axios';
 import { useAuthStore } from '@/stores/auth';
+import { useEventTimelineStore } from '@/stores/eventTimeline';
 
 import AddResultButton from '@/components/eventdetails/AddResultButton.vue';
 import EditResultButton from '@/components/eventdetails/EditResultButton.vue';
 import DeleteResultButton from '@/components/eventdetails/DeleteResultButton.vue';
+import ConflictSummaryModal from '@/components/eventdetails/ConflictSummaryModal.vue';
 
-import { API_PATH, API_BASE_URL } from '@/services/api-path';
+import { API_PATH } from '@/services/api-path';
 
 import type { IEventDetailsSummary, playerResults } from '../../shared/array-types';
 
@@ -105,6 +97,7 @@ const authStore = useAuthStore();
 const eventId = String(route.params.id ?? '');
 const playerSummary = ref<playerResults[]>([]);
 const eventDetails = ref<IEventDetailsSummary>();
+const recentSubmissionBatch = ref<any[]>([]);
 const api = inject('$api') as AxiosInstance;
 
 const loadPlayerResults = async () => {
@@ -165,7 +158,6 @@ const playersByFormat = computed<Record<string, playerResults[]>>(() => {
 </script>
 
 <style lang="scss" scoped>
-
 .button-container {
     display: flex;
     justify-content: flex-end;
