@@ -34,19 +34,43 @@
                 <span class="material-symbols-outlined">settings</span>
                 <span class="text">Settings</span>
             </router-link>
+            
+            <button class="button logout-btn" type="button" @click="handleLogout">
+                <span class="material-symbols-outlined">logout</span>
+                <span class="text">Logout</span>
+            </button>
         </div>
     </aside>
 
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, inject } from "vue";
+import { useRouter } from "vue-router";
+import { useAuthStore } from "@/stores/auth";
+import { API_PATH } from "@/services/api-path";
+import { type AxiosInstance } from "axios";
+
+const api = inject("$api") as AxiosInstance;
+const router = useRouter();
+const authStore = useAuthStore();
 
 const isMenuOpen = ref(localStorage.getItem("isMenuOpen") === "true");
 
 const ToggleMenu = () => {
     isMenuOpen.value = !isMenuOpen.value;
     localStorage.setItem("isMenuOpen", isMenuOpen.value.toString());
+};
+
+const handleLogout = async () => {
+    try {
+        // 1. Dispatch clear cookie call to backend
+        await authStore.logout();
+    } catch (error) {
+        console.error("Logout failed:", error);
+    } finally {
+        router.push({ name: 'login' });
+    }
 };
 
 </script>
@@ -166,6 +190,15 @@ aside {
 
             &.router-link-exact-active {
                 border-right: 5px solid var(--primary);
+            }
+        }
+
+        .logout-btn:hover {
+            background-color: var(--dark-alt);
+            
+            .material-symbols-outlined,
+            .text {
+                color: #ef4444;
             }
         }
     }

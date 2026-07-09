@@ -1,7 +1,7 @@
-import { eq } from "drizzle-orm";
+import { eq, and } from "drizzle-orm";
 
 import { db } from "../index.js";
-import { playerResults , type PlayerResults, eventSeries, type EventSeries  } from "../schema.js";
+import { playerResults , type PlayerResults, eventSeries, type EventSeries, eventTimeline, eventType  } from "../schema.js";
 
 export async function addDBPlayerResults(player: PlayerResults) {
     const [result] = await db.insert(playerResults).values(player).returning();
@@ -49,5 +49,46 @@ export async function updateDBPlayerResults(id: string, player: Partial<PlayerRe
 
 export async function deleteDBPlayerResults(id: string) {
     const [result] = await db.delete(playerResults).where(eq(playerResults.id, id)).returning();
+    return result;
+}
+
+export async function findDBAllInvitesForPlayer(bushiNaviId: string, eventTimelineId: string) {
+    const result = await db.select({
+                                id: playerResults.id,
+                                bushiNaviId: playerResults.bushiNaviId,
+                                playerName: playerResults.playerName,
+                                rank: playerResults.rank,
+                                formatCode: playerResults.formatCode,
+                                invTakenHere: playerResults.invTakenHere,
+                                isQualified: playerResults.isQualified,
+                                event: eventSeries.name,
+                                eventId: eventSeries.id,
+                                eventType: eventType.code,
+                                eventTypeId: eventType.id,
+                            })
+                           .from(playerResults)
+                           .innerJoin(eventSeries, eq(playerResults.eventSeriesId, eventSeries.id))
+                           .innerJoin(eventTimeline, eq(eventSeries.eventTimelineId, eventTimeline.id))
+                           .innerJoin(eventType, eq(eventSeries.eventTypeId, eventType.id))
+                           .where(and(eq(playerResults.bushiNaviId, bushiNaviId), eq(eventTimeline.id, eventTimelineId)));
+    return result;
+}
+
+export async function getDBAllPlayerResultsByTimeline(eventTimelineId: string) {
+    const result = await db.select({
+                            id: playerResults.id,
+                            bushiNaviId: playerResults.bushiNaviId,
+                            playerName: playerResults.playerName,
+                            rank: playerResults.rank,
+                            formatCode: playerResults.formatCode,
+                            invTakenHere: playerResults.invTakenHere,
+                            isQualified: playerResults.isQualified,
+                            eventName: eventSeries.name,
+                            eventId: eventSeries.id
+                        })
+                           .from(playerResults)
+                           .innerJoin(eventSeries, eq(playerResults.eventSeriesId, eventSeries.id))
+                           .innerJoin(eventTimeline, eq(eventSeries.eventTimelineId, eventTimeline.id))
+                           .where(eq(eventTimeline.id, eventTimelineId));
     return result;
 }

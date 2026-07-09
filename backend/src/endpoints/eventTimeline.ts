@@ -17,7 +17,9 @@ export async function createEventTimeline(req: Request, res: Response) {
         throw new BadRequestError(`Event timeline for event year ${eventYear} already exists`);
     }
 
-    const newTimeline = await addDBEventTimeline({ eventYear, startDate, endDate });
+    const username = req.user?.username || "System";
+
+    const newTimeline = await addDBEventTimeline({ eventYear, startDate, endDate, createdBy: username, updatedBy: username });
     if (!newTimeline) {
         throw new BadRequestError("Failed to create event timeline");
     }

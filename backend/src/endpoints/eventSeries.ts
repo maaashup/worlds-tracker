@@ -36,7 +36,9 @@ export async function createEventSeries(req: Request, res: Response): Promise<vo
 
     // respondWithJSON(res, 201, {name: name, eventType: checkEventType.code, region, eventTimeline: validEventTimeline.id, date});
 
-    const newEventSeries = await addDBEventSeries({ name, eventTypeId: checkEventType.id, regionCode: checkRegion.code , eventTimelineId: validEventTimeline.id, formats, date });
+    const username = req.user?.username || "System";
+
+    const newEventSeries = await addDBEventSeries({ name, eventTypeId: checkEventType.id, regionCode: checkRegion.code , eventTimelineId: validEventTimeline.id, formats, date, createdBy: username, updatedBy: username });
     if (!newEventSeries) {
         throw new BadRequestError("Failed to create event series");
     }
@@ -52,11 +54,19 @@ export async function getAllEventSeries(req: Request, res: Response): Promise<vo
 }
 
 export async function getAllEventSeriesForTimelineYear(req: Request, res: Response) {
-    const { eventTimelineId } = req.body;
+    const eventTimelineYear = req.params.id as string;
+    if (!eventTimelineYear) {
+        throw new BadRequestError("Missing required field: eventTimelineYear");
+    }
 
-    const response = await getDBAllEventSeriesByTLYear(eventTimelineId);
+    const eventTimelineData = await getDBEventTimelineByEventYear(eventTimelineYear);
+    if (!eventTimelineData) {
+        throw new NotFoundError("No event timeline found for the given year");
+    }
 
-    return respondWithJSON(res, 200, response);
+    const response = await getDBAllEventSeriesByTLYear(eventTimelineData.id);
+
+    return respondWithJSON(res, 200, { data: response });
 }
 
 export async function getEventSummary(req: Request, res: Response) {

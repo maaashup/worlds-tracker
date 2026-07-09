@@ -1,13 +1,13 @@
 <template>
     <button class="open-button" @click="openModal">Edit Result</button>
 
-    <div v-if="isOpen" class="modal-backdrop" role="presentation" @click.self="closeModal">
+    <div v-if="isOpen" class="modal-backdrop" role="presentation">
         <section class="modal-card" role="dialog" aria-modal="true" aria-labelledby="edit-result-title">
             <header class="modal-header">
                 <h2 id="edit-result-title">Edit Result</h2>
             </header>
 
-            <div class="modal-body">
+            <form class="modal-body" @submit.prevent="save">
                 <div class="form-wrapper">
                     <table class="form-table">
                         <thead>
@@ -26,11 +26,11 @@
                         </thead>
                         <tbody>
                             <tr>
-                                <td><input type="text" v-model="form.bushiNaviId" /></td>
-                                <td><input type="text" v-model="form.playerName" /></td>
+                                <td><input type="text" v-model="form.bushiNaviId" required /></td>
+                                <td><input type="text" v-model="form.playerName" required /></td>
                                 <td><input type="text" v-model="form.decklog" placeholder="Decklog code" /></td>
                                 <td>
-                                    <select v-model="form.formatCode">
+                                    <select v-model="form.formatCode" required>
                                         <option value="" disabled>Select format</option>
                                         <option v-for="format in formatOptions" :key="format" :value="format">{{ format }}</option>
                                     </select>
@@ -44,7 +44,9 @@
                                         <option :value="4">4</option>
                                     </select>
                                 </td>
-                                <td class="checkbox-cell center-column"><input type="checkbox" v-model="form.isSponsored" /></td>
+                                <td class="checkbox-cell center-column">
+                                    <input type="checkbox" v-model="form.isSponsored" :disabled="form.rank !== 1" />
+                                </td>
                                 <td class="checkbox-cell center-column"><input type="checkbox" v-model="form.isFormComplete" /></td>
                                 <td class="checkbox-cell center-column"><input type="checkbox" v-model="form.isQualified" /></td>
                                 <td class="checkbox-cell center-column"><input type="checkbox" v-model="form.invTakenHere" /></td>
@@ -53,20 +55,26 @@
                     </table>
                 </div>
 
+                <p v-if="errorMessage" class="form-error" role="alert">{{ errorMessage }}</p>
+
                 <div class="modal-actions">
-                    <button type="button" class="secondary" @click="closeModal">Cancel</button>
-                    <button type="button" class="primary" @click="save">Edit</button>
+                    <button type="button" class="secondary" @click="closeModal" :disabled="isSubmitting">Cancel</button>
+                    <button type="submit" class="primary" :disabled="isSubmitting">
+                        {{ isSubmitting ? 'Saving...' : 'Edit' }}
+                    </button>
                 </div>
-            </div>
+            </form>
         </section>
     </div>
 </template>
 
 <script lang="ts" setup>
-import { computed, onMounted, onUnmounted, ref } from 'vue';
-
-import { API_BASE_URL, API_PATH } from '@/services/api-path';
+import { computed, ref, inject } from 'vue';
+import { API_PATH } from '@/services/api-path';
 import type { playerResults } from '../../../shared/array-types';
+import type { AxiosInstance } from 'axios';
+
+const api = inject('$api') as AxiosInstance;
 
 type EditFormModel = {
     id: string;
@@ -93,6 +101,9 @@ const emit = defineEmits<{
 }>();
 
 const isOpen = ref(false);
+const isSubmitting = ref(false);
+const errorMessage = ref('');
+
 const form = ref<EditFormModel>({
     id: '',
     bushiNaviId: '',
@@ -111,7 +122,6 @@ const formatOptions = computed(() => {
     if ((props.formats ?? []).length) {
         return props.formats ?? [];
     }
-
     return props.player?.formatCode ? [props.player.formatCode] : [];
 });
 
@@ -132,6 +142,7 @@ const buildFormFromPlayer = (): EditFormModel => {
 };
 
 const openModal = () => {
+    errorMessage.value = '';
     form.value = buildFormFromPlayer();
     isOpen.value = true;
 };
@@ -141,63 +152,32 @@ const closeModal = () => {
 };
 
 const save = async () => {
-
-    const updatedPlayer: EditFormModel = {
-        id: form.value.id,
-        bushiNaviId: form.value.bushiNaviId,
-        playerName: form.value.playerName,
-        decklog: form.value.decklog,
-        formatCode: form.value.formatCode,
-        rank: form.value.rank,
-        isSponsored: form.value.isSponsored,
-        isFormComplete: form.value.isFormComplete,
-        isQualified: form.value.isQualified,
-        invTakenHere: form.value.invTakenHere,
-        regionCode: form.value.regionCode,
-    };
-
+    errorMessage.value = '';
+    isSubmitting.value = true;
 
     try {
-        const updatedPlayerResults = await fetch(`${API_BASE_URL}/${API_PATH.playerResults}/update/${updatedPlayer.id}`, {
-            method: 'PUT',
+        const updatedPlayerResults = await api.put(`${API_PATH.playerResults}/update/${form.value.id}`, form.value, {
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify(updatedPlayer),
         });
 
-        if (!updatedPlayerResults.ok) {
-            throw new Error(await updatedPlayerResults.text());
+        // ✅ FIX: Validate standard HTTP response success code status
+        if (updatedPlayerResults.status !== 200 && updatedPlayerResults.status !== 204) {
+            const responseMessage = updatedPlayerResults.data?.message;
+            throw new Error(responseMessage || 'Failed to update player results');
         }
 
         emit('updated');
-    } catch (error) {
-        console.error('Error updating player results:', error);
-        return;
-    }
-    
-    closeModal();
-};
-
-const onKeyDown = (event: KeyboardEvent) => {
-    if (event.key === 'Enter' && isOpen.value) {
-        event.preventDefault();
-        event.stopPropagation();
-        return;
-    }
-
-    if (event.key === 'Escape' && isOpen.value) {
         closeModal();
+    } catch (error: any) {
+        console.error('Error updating player results:', error);
+        errorMessage.value = error.response?.data?.message || error.message || 'Something went wrong while updating.';
+    } finally {
+        isSubmitting.value = false;
     }
 };
 
-onMounted(() => {
-    window.addEventListener('keydown', onKeyDown);
-});
-
-onUnmounted(() => {
-    window.removeEventListener('keydown', onKeyDown);
-});
 </script>
 
 <style lang="scss" scoped>

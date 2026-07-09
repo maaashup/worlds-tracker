@@ -3,7 +3,7 @@ import { Request, Response } from "express";
 import { respondWithJSON } from "../helperfunctions/respondWithJSON.js";
 import { BadRequestError, NotFoundError } from "../middleware/middlewareLogging.js";
 
-import { addDBPlayerResults, deleteDBPlayerResults, getDBPlayerResults, getDBPlayerResultsById, getDBPlayerResultsByNaviId, getDBPlayerResultsForEventSeries, updateDBPlayerResults } from "../db/query/playerResult.js";
+import { addDBPlayerResults, deleteDBPlayerResults, findDBAllInvitesForPlayer, getDBAllPlayerResultsByTimeline, getDBPlayerResults, getDBPlayerResultsById, getDBPlayerResultsByNaviId, getDBPlayerResultsForEventSeries, updateDBPlayerResults } from "../db/query/playerResult.js";
 import { getDBFormatByCode } from "../db/query/format.js";
 import { getDBAllEventSeriesByTLYear, getDBEventSeriesByName } from "../db/query/eventSeries.js";
 import { getDBEventTypeByCode } from "../db/query/eventType.js";
@@ -46,6 +46,8 @@ export async function createPlayerResult(req: Request, res: Response): Promise<v
         throw new NotFoundError("Region not found");
     }
 
+    const username = req.user?.username || "System";
+
     //If all checks pass, add player results to the database
     const addPlayerResults = await addDBPlayerResults({
         bushiNaviId: bushiNaviId,
@@ -59,7 +61,9 @@ export async function createPlayerResult(req: Request, res: Response): Promise<v
         isQualified: isQualified,
         eventTypeId: checkEventType.id,
         eventSeriesId: checkEventSeries.id,
-        regionCode: checkRegion.code
+        regionCode: checkRegion.code,
+        createdBy: username,
+        updatedBy: username
     });
     if (!addPlayerResults) {
         throw new NotFoundError("Failed to create player results");
@@ -149,6 +153,8 @@ export async function updatePlayerResults(req: Request, res: Response): Promise<
     const id = req.params.id as string;
     const { bushiNaviId, playerName, formatCode, rank, isSponsored, isFormComplete, invTakenHere, isQualified, decklog } = req.body;
 
+    const username = req.user?.username || "System";
+
     const updateData: Partial<{
         bushiNaviId: string;
         playerName: string;
@@ -159,6 +165,7 @@ export async function updatePlayerResults(req: Request, res: Response): Promise<
         invTakenHere: boolean;
         isQualified: boolean;
         decklog: string;
+        updatedBy: string;
     }> = {};
 
     const getOrginalData = await getDBPlayerResultsById(id);
@@ -175,6 +182,8 @@ export async function updatePlayerResults(req: Request, res: Response): Promise<
     if (getOrginalData.invTakenHere !== invTakenHere) updateData.invTakenHere = invTakenHere;
     if (getOrginalData.isQualified !== isQualified) updateData.isQualified = isQualified;
     if (getOrginalData.decklog !== decklog) updateData.decklog = decklog;
+
+    updateData.updatedBy = username;
 
     const updatedPlayerResults = await updateDBPlayerResults(id, updateData);
     if (!updatedPlayerResults) {
@@ -198,4 +207,133 @@ export async function deletePlayerResults(req: Request, res: Response): Promise<
     }
 
     respondWithJSON(res, 200, { data: deletedPlayerResult });
+}
+
+export async function findAllInvitesForPlayer(req: Request, res: Response): Promise<void> {
+    const { bushiNaviId, eventTimeline, eventId, formatCode } = req.query;
+
+    const eventTimelineData = await getDBEventTimelineByEventYear(eventTimeline as string);
+    if (!eventTimelineData) {
+        throw new NotFoundError("Event Timeline not found");
+    }
+
+    // 1. Fetch all historic timeline results for this player
+    const invites = await findDBAllInvitesForPlayer(bushiNaviId as string, eventTimelineData.id);
+
+    // 2. Filter strictly by where they have already accepted/locked-in an invite 🔒
+    const acceptedInvitesElsewhere = invites.filter(invite => {
+        const isCurrentEvent = eventId && invite.eventId === eventId;
+        const isCurrentFormat = formatCode && invite.formatCode === formatCode;
+        
+        // Match only if they accepted it elsewhere, excluding the current submission context
+        return invite.invTakenHere === true && !(isCurrentEvent && isCurrentFormat);
+    });
+
+    // 3. Boolean flag helper: Did they already consume their single invite slot somewhere else?
+    const hasAcceptedInviteElsewhere = acceptedInvitesElsewhere.length > 0;
+
+    // 4. Return the structured list to the frontend
+    respondWithJSON(res, 200, {
+        data: {
+            bushiNaviId,
+            timelineYear: eventTimeline,
+            hasAcceptedInviteElsewhere, 
+            acceptedInvites: acceptedInvitesElsewhere.map(invite => ({
+                id: invite.id,
+                event: invite.event,
+                eventId: invite.eventId,
+                formatCode: invite.formatCode,
+                rank: invite.rank
+            }))
+        }
+    });
+
+}
+
+export async function getDashboardRollDownAlerts(req: Request, res: Response): Promise<void> {
+    const { eventTimeline } = req.query;
+
+    if (!eventTimeline) {
+        throw new BadRequestError("Missing required query parameter: eventTimeline");
+    }
+
+    const eventTimelineData = await getDBEventTimelineByEventYear(eventTimeline as string);
+    if (!eventTimelineData) {
+        throw new NotFoundError("Event Timeline not found");
+    }
+
+    const allResults = await getDBAllPlayerResultsByTimeline(eventTimelineData.id);
+    console.log("=== DEBUG DASHBOARD AUDIT ===");
+    console.log("Total rows fetched from DB:", allResults.length);
+    console.log("Sample rows for Long Beach:", allResults.filter(r => r.eventName.includes("Long Beach")));
+    
+    const inviteAcceptanceCounts = new Map<string, number>();
+    for (const row of allResults) {
+        if (row.invTakenHere) {
+            const currentCount = inviteAcceptanceCounts.get(row.bushiNaviId) ?? 0;
+            inviteAcceptanceCounts.set(row.bushiNaviId, currentCount + 1);
+        }
+    }
+
+    const groups: Record<string, { eventId: string; eventName: string; formatCode: string; results: typeof allResults }> = {};
+
+
+    allResults.forEach(row => {
+        const key = `${row.eventId}-${row.formatCode}`;
+        if (!groups[key]) {
+            groups[key] = {
+                eventId: row.eventId,
+                eventName: row.eventName,
+                formatCode: row.formatCode,
+                results: []
+            };
+        }
+        groups[key].results.push(row);
+    });
+
+    const flaggedFormats = [];
+
+    // 3. Scan our historical groups for missing 4th-place slot passes
+    for (const key in groups) {
+        const { eventId, eventName, formatCode, results } = groups[key];
+
+        // Isolate 2nd and 3rd place finishes
+        const transferableSlots = results.filter(r => (r.rank === 2 || r.rank === 3) && r.isQualified);
+
+        const transferableSlotsVacated = transferableSlots.filter(r => {
+            const hasExplicitlyDeclined = !r.invTakenHere;
+            const isDoubleBookedElsewhere = r.invTakenHere && (inviteAcceptanceCounts.get(r.bushiNaviId) ?? 0) > 1;
+            
+            return hasExplicitlyDeclined || isDoubleBookedElsewhere;
+        }).length;
+
+        // Is 4th place sitting on isQualified = false?
+        const eligibleFourthPlace = results.find(r => r.rank === 4 && !r.isQualified);
+
+        // If an invite was vacated by 2nd/3rd, but 4th hasn't been qualified yet, flag it!
+        if (transferableSlotsVacated > 0 && eligibleFourthPlace) {
+            flaggedFormats.push({
+                eventId,
+                eventName,
+                formatCode,
+                vacatedCount: transferableSlotsVacated,
+                eligiblePlayer: {
+                    playerResultId: eligibleFourthPlace.id,
+                    bushiNaviId: eligibleFourthPlace.bushiNaviId,
+                    name: eligibleFourthPlace.playerName,
+                    rank: eligibleFourthPlace.rank,
+                }
+            });
+        }
+    }
+
+    respondWithJSON(res, 200, {
+        data: {
+            timelineYear: eventTimeline,
+            totalAlertsCount: flaggedFormats.length,
+            alerts: flaggedFormats
+        }
+    });
+
+
 }
