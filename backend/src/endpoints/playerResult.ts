@@ -263,8 +263,20 @@ export async function getDashboardRollDownAlerts(req: Request, res: Response): P
     }
 
     const allResults = await getDBAllPlayerResultsByTimeline(eventTimelineData.id);
+    console.log("=== DEBUG DASHBOARD AUDIT ===");
+    console.log("Total rows fetched from DB:", allResults.length);
+    console.log("Sample rows for Long Beach:", allResults.filter(r => r.eventName.includes("Long Beach")));
+    
+    const inviteAcceptanceCounts = new Map<string, number>();
+    for (const row of allResults) {
+        if (row.invTakenHere) {
+            const currentCount = inviteAcceptanceCounts.get(row.bushiNaviId) ?? 0;
+            inviteAcceptanceCounts.set(row.bushiNaviId, currentCount + 1);
+        }
+    }
 
     const groups: Record<string, { eventId: string; eventName: string; formatCode: string; results: typeof allResults }> = {};
+
 
     allResults.forEach(row => {
         const key = `${row.eventId}-${row.formatCode}`;
@@ -288,8 +300,12 @@ export async function getDashboardRollDownAlerts(req: Request, res: Response): P
         // Isolate 2nd and 3rd place finishes
         const transferableSlots = results.filter(r => (r.rank === 2 || r.rank === 3) && r.isQualified);
 
-        // Did either 2nd or 3rd choose NOT to lock in their invite here?
-        const transferableSlotsVacated = transferableSlots.filter(r => !r.invTakenHere).length;
+        const transferableSlotsVacated = transferableSlots.filter(r => {
+            const hasExplicitlyDeclined = !r.invTakenHere;
+            const isDoubleBookedElsewhere = r.invTakenHere && (inviteAcceptanceCounts.get(r.bushiNaviId) ?? 0) > 1;
+            
+            return hasExplicitlyDeclined || isDoubleBookedElsewhere;
+        }).length;
 
         // Is 4th place sitting on isQualified = false?
         const eligibleFourthPlace = results.find(r => r.rank === 4 && !r.isQualified);
