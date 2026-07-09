@@ -2,7 +2,10 @@ import express from "express";
 import cookieParser from "cookie-parser";
 import { NextFunction, Request, Response } from "express";
 
-import { middlewareLogging, middlewareErrorHandler } from "./middleware/middlewareLogging.js";
+import {
+  middlewareLogging,
+  middlewareErrorHandler,
+} from "./middleware/middlewareLogging.js";
 import { respondWithJSON } from "./helperfunctions/respondWithJSON.js";
 
 import postgres from "postgres";
@@ -20,20 +23,23 @@ import { tokensRoutes } from "./routes/tokensRoutes.js";
 import { usersRoutes } from "./routes/usersRoutes.js";
 
 const env = process.env;
-const PORT = env.API_PORT || 3000;
+const PORT = env.API_PORT || env.PORT || 3000;
 const API_URL = env.API_URL;
 
 const app = express();
 
 app.use((req: Request, res: Response, next: NextFunction) => {
-  const allowedOrigin = process.env.FRONTEND_URL || 'http://localhost:5173';
+  const allowedOrigin = process.env.FRONTEND_URL || "http://localhost:5173";
 
-  res.header('Access-Control-Allow-Origin', allowedOrigin);
-  res.header('Access-Control-Allow-Credentials', 'true'); //Allows cookies/credentials over CORS.
-  res.header('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS');
-  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+  res.header("Access-Control-Allow-Origin", allowedOrigin);
+  res.header("Access-Control-Allow-Credentials", "true"); //Allows cookies/credentials over CORS.
+  res.header("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS");
+  res.header(
+    "Access-Control-Allow-Headers",
+    "Origin, X-Requested-With, Content-Type, Accept",
+  );
 
-  if (req.method === 'OPTIONS') {
+  if (req.method === "OPTIONS") {
     return res.sendStatus(200);
   }
 
@@ -58,9 +64,7 @@ app.use("/api/event-type", eventTypeRoutes);
 app.use("/api/format", formatRoutes);
 app.use("/api/regions", regionRoutes);
 
-
 app.use(middlewareErrorHandler);
-
 
 startServer();
 
@@ -68,7 +72,11 @@ async function startServer() {
   await runMigrations();
 
   app.listen(PORT, () => {
-    console.log(`Server is running at ${API_URL}:${PORT}`);
+    if (process.env.NODE_ENV === "production") {
+      console.log(`🚀 Server is running live at ${API_URL}`);
+    } else {
+      console.log(`🚀 Server is running locally at http://localhost:${PORT}`);
+    }
   });
 }
 
@@ -76,14 +84,14 @@ async function runMigrations() {
   try {
     const migrationClient = postgres(config.db.url, {
       max: 1,
-      ssl: config.db.ssl, 
+      ssl: config.db.ssl,
     });
-    
+
     await migrate(drizzle(migrationClient), config.db.migrationConfig);
     console.log("✅ Migrations completed!");
   } catch (error) {
     console.error("❌ Migration failed, retrying in 5 seconds...", error);
-    await new Promise(res => setTimeout(res, 5000));
+    await new Promise((res) => setTimeout(res, 5000));
     return runMigrations(); // Recursive retry
   }
 }
