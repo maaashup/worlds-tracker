@@ -66,17 +66,19 @@ export async function LoginUser(req: Request, res: Response): Promise<void> {
     updatedBy: existingUser.username,
   });
 
+  const isProd = process.env.NODE_ENV === "production";
+
   res.cookie("token", token, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
+    secure: isProd,
+    sameSite: isProd ? "none" : "lax",
     maxAge: 3600 * 1000, // 1 hour
   });
 
   res.cookie("refreshToken", refreshToken, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
+    secure: isProd,
+    sameSite: isProd ? "none" : "lax",
     maxAge: 2 * 24 * 60 * 60 * 1000, // 2 days in milliseconds
   });
 
@@ -131,10 +133,12 @@ export async function updateUserPassword(req: Request, res: Response): Promise<v
 
     const token = makeJWT(updatedUser.id, 3600, config.secretKey);
 
+    const isProd = process.env.NODE_ENV === "production";
+
     res.cookie("token", token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
+      secure: isProd,
+      sameSite: isProd ? "none" : "lax",
       maxAge: 3600 * 1000, // 1 hour
     });
 
@@ -169,10 +173,12 @@ export async function logoutUser(req: Request, res: Response): Promise<void> {
 
   await revokeDBRefreshToken(refreshToken, currentDate);
 
+  const isProd = process.env.NODE_ENV === "production";
+
   const CookieOptions = {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax" as const,
+    secure: isProd,
+    sameSite: (isProd ? "none" : "lax") as "none" | "lax",
   }
 
   res.clearCookie("token", CookieOptions);

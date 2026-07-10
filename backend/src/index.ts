@@ -29,7 +29,7 @@ const API_URL = env.API_URL;
 const app = express();
 
 app.use((req: Request, res: Response, next: NextFunction) => {
-  const allowedOrigin = process.env.FRONTEND_URL || "http://localhost:5173";
+  const allowedOrigin = process.env.FRONTEND_URL;
 
   res.header("Access-Control-Allow-Origin", allowedOrigin);
   res.header("Access-Control-Allow-Credentials", "true"); //Allows cookies/credentials over CORS.
