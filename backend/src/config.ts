@@ -3,7 +3,7 @@ import path from "path";
 
 
 const migrationConfig: MigrationConfig = {
-  migrationsFolder: path.join(__dirname, "db", "migrations"),
+  migrationsFolder: path.join(__dirname, "..", "src", "db", "migrations"),
 };
 
 const isProduction = process.env.NODE_ENV === "production";
