@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "tsc",
+    "build": "tsc && copyfiles -u 1 src/db/migrations/**/*.sql dist",
     "start": "node dist/index.js",
     "api:build": "tsc",
     "api:start": "node --env-file=../.env dist/index.js",
@@ -25,6 +25,7 @@
     "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^24.13.2",
     "@types/pg": "^8.20.0",
+    "copyfiles": "^2.4.1",
     "drizzle-kit": "^0.31.10",
     "tsx": "^4.22.4",
     "typescript": "^6.0.3"
