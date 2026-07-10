@@ -1,7 +1,11 @@
 import type { MigrationConfig } from "drizzle-orm/migrator";
 
+const migrationsFolder = process.env.NODE_ENV === "production" 
+  ? "./dist/db/migrations" 
+  : "./src/db/migrations";
+
 const migrationConfig: MigrationConfig = {
-  migrationsFolder: "./src/db/migrations",
+  migrationsFolder: migrationsFolder,
 };
 
 const isProduction = process.env.NODE_ENV === "production";
