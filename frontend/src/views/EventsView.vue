@@ -21,7 +21,7 @@ const api = inject('$api') as AxiosInstance;
 onMounted(async () => {
   try {
     const params = new URLSearchParams({
-      eventTimelineId: 'ebe728bc-ab62-439a-8261-004e8fece0e0'
+      eventTimelineId: '8126b430-afff-4090-9b50-ebee871f1bfc'
     });
 
     const response = await api.get(`${API_PATH.playerResults}/timelinesummary`, { params });
