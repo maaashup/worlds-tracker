@@ -25,7 +25,7 @@ export const useAuthStore = defineStore('auth', () => {
     async function login(username: string, password: string) {
         isLoading.value = true;
         try {
-            const response = await api.post(`/${API_PATH.users}/login`, { username, password });
+            const response = await api.post('https://worlds-tracker-production.up.railway.app/api/users/login', { username, password });
             user.value = response.data.data;
             return true;
         } catch (error) {
